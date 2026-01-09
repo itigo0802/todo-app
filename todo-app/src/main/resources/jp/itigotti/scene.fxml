@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" xmlns:fx="http://javafx.com/fxml/1" fx:controller="jp.itigotti.Controller">
+	<padding>
+		<Insets top="20" right="20" bottom="20" left="20"/>
+	</padding>
+	
+	<HBox spacing="10">
+		<TextField fx:id="taskInput" onAction="#handleAddAction" promptText="新しいタスクを入力" HBox.hgrow="ALWAYS"/>
+		<Button text="追加" onAction="#handleAddAction"/>
+	</HBox>
+	
+	<ListView fx:id="todoListView" VBox.vgrow="ALWAYS"/>
+	
+	<Button text="選択項目を削除" onAction="#handleDeleteAction"/>
+</VBox>
+
