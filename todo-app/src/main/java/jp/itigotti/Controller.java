@@ -24,6 +24,8 @@ public class Controller {
 	@FXML
 	public void handleDeleteAction() {
 		String selected = todoListView.getSelectionModel().getSelectedItem();
-		model.removeTodoItem(selected);
+		if(selected != null) {
+			model.removeTodoItem(selected);
+		}
 	}
 }
