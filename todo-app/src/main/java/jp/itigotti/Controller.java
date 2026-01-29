@@ -8,21 +8,21 @@ public class Controller {
 	@FXML private TextField taskInput;
 	@FXML private ListView<String> todoListView;
 	
-	private TodoModel model = new TodoModel();
+	private final TodoModel model = new TodoModel();
 	
 	@FXML
-	public void initialize() {
+	 private void initialize() {
 		todoListView.setItems(model.getTodoItems());
 	}
 	
 	@FXML
-	public void handleAddAction() {
+	private void handleAddAction() {
 		model.addTodoItem(taskInput.getText());
 		taskInput.clear();
 	}
 	
 	@FXML
-	public void handleDeleteAction() {
+	private void handleDeleteAction() {
 		String selected = todoListView.getSelectionModel().getSelectedItem();
 		if(selected != null) {
 			model.removeTodoItem(selected);
