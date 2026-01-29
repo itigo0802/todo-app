@@ -3,7 +3,7 @@ package jp.itigotti;
 import javafx.collections.ObservableList;
 
 public class TodoModel {
-	private ObservableList<String> todoItems = javafx.collections.FXCollections.observableArrayList();
+	private final ObservableList<String> todoItems = javafx.collections.FXCollections.observableArrayList();
 	
 	public ObservableList<String> getTodoItems() {
 		return todoItems;
