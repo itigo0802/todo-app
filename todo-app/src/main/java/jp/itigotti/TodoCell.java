@@ -18,7 +18,7 @@ public class TodoCell extends ListCell<TodoItemModel> {
     @FXML private Label expirationLabel;
 
     private FXMLLoader loader;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
     public TodoCell() {
 
@@ -41,7 +41,7 @@ public class TodoCell extends ListCell<TodoItemModel> {
         } else {
             taskLabel.setText(item.getTask());
             if(item.getExpirationDate() != null) {
-                expirationLabel.setText(item.getExpirationDate().format(formatter));
+                expirationLabel.setText(item.getExpirationDate().format(FORMATTER));
             } else {
                 expirationLabel.setText("");
             }
