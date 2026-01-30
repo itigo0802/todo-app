@@ -22,11 +22,10 @@ public class TodoCell extends ListCell<TodoItemModel> {
 
     public TodoCell() {
 
-        loader = new FXMLLoader();
-        loader.setController(this);
-
         try {
-            FXMLLoader.load(getClass().getResource("todoItemCell.fxml"));
+            loader = new FXMLLoader(getClass().getResource("todoItemCell.fxml"));
+            loader.setController(this);
+            loader.load();
         } catch(IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -36,14 +35,18 @@ public class TodoCell extends ListCell<TodoItemModel> {
     protected void updateItem(TodoItemModel item, boolean empty) {
         super.updateItem(item, empty);
 
-        taskLabel.setText(item.getTask());
-        if(item.getExpirationDate() != null) {
-            expirationLabel.setText(item.getExpirationDate().format(formatter));
+        if(empty || item == null) {
+            setText(null);
+            setGraphic(null);
         } else {
+            taskLabel.setText(item.getTask());
+            if(item.getExpirationDate() != null) {
+                expirationLabel.setText(item.getExpirationDate().format(formatter));
+            } else {
                 expirationLabel.setText("");
+            }
+            isCompletedCheckBox.setSelected(item.isCompleted());
         }
-
-        isCompletedCheckBox.setSelected(item.isCompleted());
 
         setText(null);
         setGraphic(hBox);
