@@ -15,7 +15,14 @@
 		<Button text="追加" onAction="#handleAddAction"/>
 	</HBox>
 	
-	<ListView fx:id="todoListView" VBox.vgrow="ALWAYS"/>
+	<TableView fx:id="todoListView" VBox.vgrow="ALWAYS">
+		<columns>
+			<TableColumn fx:id="isCompletedColumn" text="完了"/>
+			<TableColumn fx:id="taskColumn" text="タスク"/>
+			<TableColumn fx:id="expirationColumn" text="期限"/>
+		</columns>
+	</TableView>
+
 	
 	<Button text="選択項目を削除" onAction="#handleDeleteAction"/>
 </VBox>

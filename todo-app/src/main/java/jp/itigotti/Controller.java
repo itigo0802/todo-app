@@ -1,24 +1,39 @@
 package jp.itigotti;
 
+import java.time.LocalDate;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class Controller {
 	@FXML private TextField taskInput;
 	@FXML private DatePicker expirationDatePicker;
-	@FXML private ListView<TodoItemModel> todoListView;
+	@FXML private TableView<TodoItemModel> todoListView;
+	@FXML private TableColumn<TodoItemModel, String> taskColumn;
+	@FXML private TableColumn<TodoItemModel, LocalDate> expirationColumn;
+	@FXML private TableColumn<TodoItemModel, Boolean> isCompletedColumn;
 	
 	private final TodoListLogic logic = new TodoListLogic();
 	
 	@FXML
 	 private void initialize() {
 		todoListView.setItems(logic.getTodoItems());
+		todoListView.setEditable(true);
 
-		todoListView.setCellFactory(param -> new TodoCell());
+		taskColumn.setCellValueFactory(new PropertyValueFactory<>("task"));
+
+		expirationColumn.setCellValueFactory(new PropertyValueFactory<>("expirationDate"));
+
+		isCompletedColumn.setCellValueFactory(new PropertyValueFactory<>("isCompleted"));
+		isCompletedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isCompletedColumn));
+		isCompletedColumn.setEditable(true);
 	}
 	
 	@FXML
