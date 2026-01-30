@@ -35,7 +35,7 @@ public class TodoItemModel {
         return expirationDate;
     }
 
-    public boolean getIsCompleted() {
+    public boolean isCompleted() {
         return isCompleted.get();
     }
     public void setIsCompleted(boolean isCompleted) {
