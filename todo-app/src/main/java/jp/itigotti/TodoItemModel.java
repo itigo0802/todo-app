@@ -6,7 +6,7 @@ import javafx.beans.property.*;
 
 public class TodoItemModel {
     private final StringProperty task = new SimpleStringProperty();
-    private final  ObjectProperty<LocalDate> expirationDate = new SimpleObjectProperty<>();
+    private final ObjectProperty<LocalDate> expirationDate = new SimpleObjectProperty<>();
     private final BooleanProperty isCompleted = new SimpleBooleanProperty();
 
     public TodoItemModel(String task, LocalDate expirationDate) {
