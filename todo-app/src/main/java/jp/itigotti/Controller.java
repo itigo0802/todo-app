@@ -1,9 +1,11 @@
 package jp.itigotti;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 
 public class Controller {
 	@FXML private TextField taskInput;
@@ -21,9 +23,17 @@ public class Controller {
 	
 	@FXML
 	private void handleAddAction() {
-		logic.addTodoItem(taskInput.getText(), expirationDatePicker.getValue());
-		taskInput.clear();
-		expirationDatePicker.setValue(null);
+		try {
+			logic.addTodoItem(taskInput.getText(), expirationDatePicker.getValue());
+			taskInput.clear();
+			expirationDatePicker.setValue(null);
+		} catch(IllegalArgumentException e) {
+			var alert = new Alert(AlertType.ERROR);
+			alert.setTitle("入力エラー");
+			alert.setHeaderText(null);
+			alert.setContentText(e.getMessage());
+			alert.showAndWait();
+		}
 	}
 	
 	@FXML
