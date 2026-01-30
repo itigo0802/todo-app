@@ -17,39 +17,37 @@ public class TodoCell extends ListCell<TodoItemModel> {
     @FXML private Label taskLabel;
     @FXML private Label expirationLabel;
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     private FXMLLoader loader;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+
+    public TodoCell() {
+
+        loader = new FXMLLoader();
+        loader.setController(this);
+
+        try {
+            FXMLLoader.load(getClass().getResource("todoItemCell.fxml"));
+        } catch(IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
     @Override
     protected void updateItem(TodoItemModel item, boolean empty) {
         super.updateItem(item, empty);
 
-        if(empty || item == null) {
-            setText(null);
-            setGraphic(null);
+        taskLabel.setText(item.getTask());
+        if(item.getExpirationDate() != null) {
+            expirationLabel.setText(item.getExpirationDate().format(formatter));
         } else {
-            if(loader == null) {
-                loader = new FXMLLoader(getClass().getResource("todoItemCell.fxml"));
-                loader.setController(this);
-                try {
-                    loader.load();
-                } catch(IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            }
-
-            taskLabel.setText(item.getTask());
-            if(item.getExpirationDate() != null) {
-                expirationLabel.setText(item.getExpirationDate().format(formatter));
-            } else {
                 expirationLabel.setText("");
-            }
-
-            isCompletedCheckBox.setSelected(item.isCompleted());
-
-            setText(null);
-            setGraphic(hBox);
         }
+
+        isCompletedCheckBox.setSelected(item.isCompleted());
+
+        setText(null);
+        setGraphic(hBox);
+        
     }
 
     @FXML
