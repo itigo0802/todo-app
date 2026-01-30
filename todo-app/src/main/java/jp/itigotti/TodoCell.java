@@ -17,13 +17,12 @@ public class TodoCell extends ListCell<TodoItemModel> {
     @FXML private Label taskLabel;
     @FXML private Label expirationLabel;
 
-    private FXMLLoader loader;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
     public TodoCell() {
 
         try {
-            loader = new FXMLLoader(getClass().getResource("todoItemCell.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("todoItemCell.fxml"));
             loader.setController(this);
             loader.load();
         } catch(IOException e) {
@@ -46,11 +45,9 @@ public class TodoCell extends ListCell<TodoItemModel> {
                 expirationLabel.setText("");
             }
             isCompletedCheckBox.setSelected(item.isCompleted());
+            setText(null);
+            setGraphic(hBox);
         }
-
-        setText(null);
-        setGraphic(hBox);
-        
     }
 
     @FXML
