@@ -11,6 +11,7 @@
 	
 	<HBox spacing="10">
 		<TextField fx:id="taskInput" onAction="#handleAddAction" promptText="新しいタスクを入力" HBox.hgrow="ALWAYS"/>
+		<DatePicker fx:id="expirationDatePicker" promptText="期限を選択"/>
 		<Button text="追加" onAction="#handleAddAction"/>
 	</HBox>
 	
