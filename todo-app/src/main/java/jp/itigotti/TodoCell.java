@@ -1,6 +1,7 @@
 package jp.itigotti;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.time.format.DateTimeFormatter;
 
 import javafx.fxml.FXML;
@@ -16,6 +17,7 @@ public class TodoCell extends ListCell<TodoItemModel> {
     @FXML private Label taskLabel;
     @FXML private Label expirationLabel;
 
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     private FXMLLoader loader;
 
     @Override
@@ -32,14 +34,18 @@ public class TodoCell extends ListCell<TodoItemModel> {
                 try {
                     loader.load();
                 } catch(IOException e) {
-                    e.printStackTrace();
+                    throw new UncheckedIOException(e);
                 }
             }
 
             taskLabel.setText(item.getTask());
-            expirationLabel.setText(item.getExpirationDate().format(DateTimeFormatter.ofPattern("yyyy/MM/dd")));
+            if(item.getExpirationDate() != null) {
+                item.getExpirationDate().format(formatter);
+            } else {
+                expirationLabel.setText("");
+            }
 
-            isCompletedCheckBox.setSelected(item.getIsCompleted());
+            isCompletedCheckBox.setSelected(item.isCompleted());
 
             setText(null);
             setGraphic(hBox);
