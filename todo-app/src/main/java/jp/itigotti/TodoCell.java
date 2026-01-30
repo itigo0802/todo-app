@@ -40,7 +40,7 @@ public class TodoCell extends ListCell<TodoItemModel> {
 
             taskLabel.setText(item.getTask());
             if(item.getExpirationDate() != null) {
-                item.getExpirationDate().format(formatter);
+                expirationLabel.setText(item.getExpirationDate().format(formatter));
             } else {
                 expirationLabel.setText("");
             }
