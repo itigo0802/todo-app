@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+
+<HBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:id="hBox" alignment="CENTER_LEFT" spacing="10.0">
+    <CheckBox fx:id="isCompletedCheckBox" onAction="#handleIsCompletedAction" />
+    <Label fx:id="taskLabel" />
+    <Region HBox.hgrow="ALWAYS" />
+    <Label fx:id="expirationLabel" />
+</HBox>
