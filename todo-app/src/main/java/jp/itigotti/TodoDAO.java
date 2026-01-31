@@ -57,7 +57,7 @@ public class TodoDAO {
     }
 
     public TodoItemModel create(TodoItemModel item) {
-        try(Connection conn =DriverManager.getConnection(DB_URL)) {
+        try(Connection conn = DriverManager.getConnection(DB_URL)) {
             String sql = "insert into todo_items (task, expiration_date) values ("
                 + "?, "
                 + "?);";
