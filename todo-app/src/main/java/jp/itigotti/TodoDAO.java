@@ -26,6 +26,7 @@ public class TodoDAO {
             }
         } catch(SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException("DBの初期化に失敗しました", e);
         }
     }
 
@@ -48,6 +49,7 @@ public class TodoDAO {
             }
         } catch(SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException("DBの読み込みに失敗しました", e);
         }
         return todoList;
     }
@@ -66,7 +68,7 @@ public class TodoDAO {
             }
         } catch(SQLException e) {
             e.printStackTrace();
-            return false;
+            throw new RuntimeException("DBへの登録に失敗しました", e);
         }
     }
 
@@ -87,7 +89,7 @@ public class TodoDAO {
             }
         } catch(SQLException e) {
             e.printStackTrace();
-            return false;
+            throw new RuntimeException("DBへの更新に失敗しました", e);
         }
     }
 
@@ -102,7 +104,7 @@ public class TodoDAO {
             }
         } catch(SQLException e) {
             e.printStackTrace();
-            return false;
+            throw new RuntimeException("DBへの削除に失敗しました", e);
         }
     }
 }
