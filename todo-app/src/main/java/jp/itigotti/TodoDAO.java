@@ -6,6 +6,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,17 +56,30 @@ public class TodoDAO {
         return todoList;
     }
 
-    public boolean create(TodoItemModel item) {
+    public TodoItemModel create(TodoItemModel item) {
         try(Connection conn =DriverManager.getConnection(DB_URL)) {
             String sql = "insert into todo_items (task, expiration_date) values ("
                 + "?, "
                 + "?);";
             
-            try(PreparedStatement pStmt = conn.prepareStatement(sql)) {
+            try(PreparedStatement pStmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 pStmt.setString(1, item.getTask());
-                pStmt.setDate(2, Date.valueOf(item.getExpirationDate()));
 
-                return pStmt.executeUpdate() == 1;
+                if(item.getExpirationDate() != null) {
+                    pStmt.setDate(2, Date.valueOf(item.getExpirationDate()));
+                } else {
+                    pStmt.setNull(2, Types.DATE);
+                }
+
+                if(pStmt.executeUpdate() == 1) {
+                    ResultSet rs = pStmt.getGeneratedKeys();
+                    if(rs.next()) {
+                        item.setId(rs.getInt(1));
+                    }
+                    return item;
+                } else {
+                    return null;
+                }
             }
         } catch(SQLException e) {
             e.printStackTrace();
@@ -72,7 +87,7 @@ public class TodoDAO {
         }
     }
 
-    public boolean update(TodoItemModel item) {
+    public TodoItemModel update(TodoItemModel item) {
         try(Connection conn = DriverManager.getConnection(DB_URL)) {
             String sql = "update todo_items set task = ?, "
                 + "expiration_date = ?, "
@@ -81,11 +96,19 @@ public class TodoDAO {
             
             try(PreparedStatement pStmt = conn.prepareStatement(sql)) {
                 pStmt.setString(1, item.getTask());
-                pStmt.setDate(2, Date.valueOf(item.getExpirationDate()));
+                if(item.getExpirationDate() != null) {
+                    pStmt.setDate(2, Date.valueOf(item.getExpirationDate()));
+                } else {
+                    pStmt.setNull(2, Types.DATE);
+                }
                 pStmt.setBoolean(3, item.isCompleted());
                 pStmt.setInt(4, item.getId());
 
-                return pStmt.executeUpdate() == 1;
+                if(pStmt.executeUpdate() == 1) {
+                    return item;
+                } else {
+                    return null;
+                }
             }
         } catch(SQLException e) {
             e.printStackTrace();
