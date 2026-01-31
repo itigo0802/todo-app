@@ -6,10 +6,9 @@ import javafx.collections.ObservableList;
 
 public class TodoListLogic {
 	private final ObservableList<TodoItemModel> todoItems = javafx.collections.FXCollections.observableArrayList();
-	
+	private final TodoDAO dao = new TodoDAO();
+
 	public ObservableList<TodoItemModel> getTodoItems() {
-		TodoDAO dao = new TodoDAO();
-		todoItems.clear();
 		todoItems.addAll(dao.findAll());
 		return todoItems;
 	}
@@ -27,12 +26,16 @@ public class TodoListLogic {
 		item.setTask(task);
 		item.setExpirationDate(expirationDate);
 
-		TodoDAO dao = new TodoDAO();
 		dao.create(item);
 	}
 	
 	public void removeTodoItem(TodoItemModel item) {
-		TodoDAO dao = new TodoDAO();
 		dao.delete(item);
 	}
+
+	public void refresh() {
+		todoItems.clear();
+		todoItems.addAll(dao.findAll());
+	}
 }
+
