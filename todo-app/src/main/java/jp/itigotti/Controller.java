@@ -27,11 +27,11 @@ public class Controller {
 		todoListView.setItems(logic.getTodoItems());
 		todoListView.setEditable(true);
 
-		taskColumn.setCellValueFactory(new PropertyValueFactory<>("task"));
+		taskColumn.setCellValueFactory(cellData -> cellData.getValue().taskProperty());
 
-		expirationColumn.setCellValueFactory(new PropertyValueFactory<>("expirationDate"));
+		expirationColumn.setCellValueFactory(cellData -> cellData.getValue().expirationDateProperty());
 
-		isCompletedColumn.setCellValueFactory(new PropertyValueFactory<>("isCompleted"));
+		isCompletedColumn.setCellValueFactory(cellData -> cellData.getValue().isCompletedProperty());
 		isCompletedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isCompletedColumn));
 		isCompletedColumn.setEditable(true);
 	}
