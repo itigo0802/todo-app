@@ -30,11 +30,16 @@ public class TodoListLogic {
 		item.setExpirationDate(expirationDate);
 		item.setIsCompleted(false);
 
-		dao.create(item);
+		if(dao.create(item) != null) {
+			todoItems.add(item);
+		}
 	}
 	
+	
 	public void removeTodoItem(TodoItemModel item) {
-		dao.delete(item);
+		if(dao.delete(item)) {
+			todoItems.remove(item);
+		}
 	}
 
 	public void refresh() {
