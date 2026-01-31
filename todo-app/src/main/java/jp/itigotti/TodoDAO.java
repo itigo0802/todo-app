@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class TodoDAO {
                     TodoItemModel item = new TodoItemModel();
                     item.setId(rs.getInt("id"));
                     item.setTask(rs.getString("task"));
-                    item.setExpirationDate(rs.getDate("expiration_date").toLocalDate());
+                    item.setExpirationDate(rs.getObject("expiration_date", LocalDate.class));
                     item.setIsCompleted(rs.getBoolean("is_completed"));
                     todoList.add(item);
                 }
