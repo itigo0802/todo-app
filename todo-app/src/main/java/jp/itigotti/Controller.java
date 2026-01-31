@@ -42,7 +42,7 @@ public class Controller {
 				} else {
 					setText(FORMATTER.format(item));
 				}
-			};
+			}
 		});
 
 		isCompletedColumn.setCellValueFactory(cellData -> cellData.getValue().isCompletedProperty());
