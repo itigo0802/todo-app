@@ -5,15 +5,21 @@ import java.time.LocalDate;
 import javafx.beans.property.*;
 
 public class TodoItemModel {
+    private final IntegerProperty id = new SimpleIntegerProperty();
     private final StringProperty task = new SimpleStringProperty();
     private final ObjectProperty<LocalDate> expirationDate = new SimpleObjectProperty<>();
     private final BooleanProperty isCompleted = new SimpleBooleanProperty();
 
-    public TodoItemModel(String task, LocalDate expirationDate) {
-        this.task.set(task);
-        this.expirationDate.set(expirationDate);
-        this.isCompleted.set(false);
+    public int getId() {
+        return id.get();
     }
+    public void setId(int id) {
+        this.id.set(id);
+    }
+    public IntegerProperty idProperty() {
+        return id;
+    }
+
 
     public String getTask() {
         return task.get();
