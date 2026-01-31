@@ -28,6 +28,7 @@ public class TodoListLogic {
 		TodoItemModel item = new TodoItemModel();
 		item.setTask(task);
 		item.setExpirationDate(expirationDate);
+		item.setIsCompleted(false);
 
 		dao.create(item);
 	}
