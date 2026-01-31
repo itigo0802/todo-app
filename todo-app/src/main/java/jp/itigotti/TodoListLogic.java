@@ -1,6 +1,7 @@
 package jp.itigotti;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import javafx.collections.ObservableList;
 
@@ -9,7 +10,9 @@ public class TodoListLogic {
 	private final TodoDAO dao = new TodoDAO();
 
 	public ObservableList<TodoItemModel> getTodoItems() {
-		todoItems.addAll(dao.findAll());
+		List<TodoItemModel> items = dao.findAll();
+		items.forEach(this::setupItemListener);
+		todoItems.addAll(items);
 		return todoItems;
 	}
 	
@@ -35,7 +38,15 @@ public class TodoListLogic {
 
 	public void refresh() {
 		todoItems.clear();
-		todoItems.addAll(dao.findAll());
+		List<TodoItemModel> items = dao.findAll();
+		items.forEach(this::setupItemListener);
+		todoItems.addAll(items);
+	}
+
+	private void setupItemListener(TodoItemModel item) {
+		item.isCompletedProperty().addListener((obs, oldVal, newVal) -> {
+			dao.update(item);
+		});
 	}
 }
 
