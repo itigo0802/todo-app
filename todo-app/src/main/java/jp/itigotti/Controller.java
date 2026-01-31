@@ -22,6 +22,8 @@ public class Controller {
 	@FXML private TableColumn<TodoItemModel, Boolean> isCompletedColumn;
 	
 	private final TodoListLogic logic = new TodoListLogic();
+
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd")
 	
 	@FXML
 	 private void initialize() {
@@ -32,15 +34,13 @@ public class Controller {
 
 		expirationColumn.setCellValueFactory(cellData -> cellData.getValue().expirationDateProperty());
 		expirationColumn.setCellFactory(column -> new TableCell<>() {
-			private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-
 			@Override
 			protected void updateItem(LocalDate item, boolean empty) {
 				super.updateItem(item, empty);
 				if(empty || item == null) {
 					setText(null);
 				} else {
-					setText(formatter.format(item));
+					setText(FORMATTER.format(item));
 				}
 			};
 		});
