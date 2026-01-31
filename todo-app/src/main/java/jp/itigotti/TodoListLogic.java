@@ -1,13 +1,18 @@
 package jp.itigotti;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import javafx.collections.ObservableList;
 
 public class TodoListLogic {
 	private final ObservableList<TodoItemModel> todoItems = javafx.collections.FXCollections.observableArrayList();
-	
+	private final TodoDAO dao = new TodoDAO();
+
 	public ObservableList<TodoItemModel> getTodoItems() {
+		List<TodoItemModel> items = dao.findAll();
+		items.forEach(this::setupItemListener);
+		todoItems.addAll(items);
 		return todoItems;
 	}
 	
@@ -20,10 +25,34 @@ public class TodoListLogic {
 			throw new IllegalArgumentException("期限が入力されていません");
 		}
 
-		todoItems.add(new TodoItemModel(task, expirationDate));
+		TodoItemModel item = new TodoItemModel();
+		item.setTask(task);
+		item.setExpirationDate(expirationDate);
+		item.setIsCompleted(false);
+
+		if(dao.create(item) != null) {
+			todoItems.add(item);
+		}
 	}
 	
+	
 	public void removeTodoItem(TodoItemModel item) {
-		todoItems.remove(item);
+		if(dao.delete(item)) {
+			todoItems.remove(item);
+		}
+	}
+
+	public void refresh() {
+		todoItems.clear();
+		List<TodoItemModel> items = dao.findAll();
+		items.forEach(this::setupItemListener);
+		todoItems.addAll(items);
+	}
+
+	private void setupItemListener(TodoItemModel item) {
+		item.isCompletedProperty().addListener((obs, oldVal, newVal) -> {
+			dao.update(item);
+		});
 	}
 }
+
