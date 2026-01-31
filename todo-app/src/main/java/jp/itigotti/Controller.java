@@ -45,7 +45,7 @@ public class Controller {
 			}
 		});
 
-		isCompletedColumn.setCellValueFactory(cellData -> cellData.getValue().isCompletedProperty());
+		isCompletedColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
 		isCompletedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isCompletedColumn));
 		isCompletedColumn.setEditable(true);
 	}

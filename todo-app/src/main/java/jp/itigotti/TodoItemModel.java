@@ -8,7 +8,7 @@ public class TodoItemModel {
     private final IntegerProperty id = new SimpleIntegerProperty();
     private final StringProperty task = new SimpleStringProperty();
     private final ObjectProperty<LocalDate> expirationDate = new SimpleObjectProperty<>();
-    private final BooleanProperty isCompleted = new SimpleBooleanProperty();
+    private final BooleanProperty completed = new SimpleBooleanProperty();
 
     public int getId() {
         return id.get();
@@ -42,13 +42,13 @@ public class TodoItemModel {
     }
 
     public boolean isCompleted() {
-        return isCompleted.get();
+        return completed.get();
     }
-    public void setIsCompleted(boolean isCompleted) {
-        this.isCompleted.set(isCompleted);
+    public void setCompleted(boolean completed) {
+        this.completed.set(completed);
     }
-    public BooleanProperty isCompletedProperty() {
-        return isCompleted;
+    public BooleanProperty completedProperty() {
+        return completed;
     }
 
 }
