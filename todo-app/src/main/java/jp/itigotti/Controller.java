@@ -54,6 +54,7 @@ public class Controller {
 	private void handleAddAction() {
 		try {
 			logic.addTodoItem(taskInput.getText(), expirationDatePicker.getValue());
+			logic.getTodoItems();
 			taskInput.clear();
 			expirationDatePicker.setValue(null);
 		} catch(IllegalArgumentException e) {
@@ -70,6 +71,7 @@ public class Controller {
 		TodoItemModel selected = todoListView.getSelectionModel().getSelectedItem();
 		if(selected != null) {
 			logic.removeTodoItem(selected);
+			logic.getTodoItems();
 		}
 	}
 }

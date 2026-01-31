@@ -8,6 +8,9 @@ public class TodoListLogic {
 	private final ObservableList<TodoItemModel> todoItems = javafx.collections.FXCollections.observableArrayList();
 	
 	public ObservableList<TodoItemModel> getTodoItems() {
+		TodoDAO dao = new TodoDAO();
+		todoItems.clear();
+		todoItems.addAll(dao.findAll());
 		return todoItems;
 	}
 	
@@ -20,10 +23,16 @@ public class TodoListLogic {
 			throw new IllegalArgumentException("期限が入力されていません");
 		}
 
-		todoItems.add(new TodoItemModel(task, expirationDate));
+		TodoItemModel item = new TodoItemModel();
+		item.setTask(task);
+		item.setExpirationDate(expirationDate);
+
+		TodoDAO dao = new TodoDAO();
+		dao.create(item);
 	}
 	
 	public void removeTodoItem(TodoItemModel item) {
-		todoItems.remove(item);
+		TodoDAO dao = new TodoDAO();
+		dao.delete(item);
 	}
 }
