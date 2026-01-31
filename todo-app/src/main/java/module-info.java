@@ -1,4 +1,4 @@
-module jp.itigotti {
+module jp.itigotti.module {
     requires javafx.controls;
     requires javafx.fxml;
     requires transitive javafx.base;
