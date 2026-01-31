@@ -1,10 +1,12 @@
 package jp.itigotti;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -29,6 +31,19 @@ public class Controller {
 		taskColumn.setCellValueFactory(cellData -> cellData.getValue().taskProperty());
 
 		expirationColumn.setCellValueFactory(cellData -> cellData.getValue().expirationDateProperty());
+		expirationColumn.setCellFactory(column -> new TableCell<>() {
+			private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+
+			@Override
+			protected void updateItem(LocalDate item, boolean empty) {
+				super.updateItem(item, empty);
+				if(empty || item == null) {
+					setText(null);
+				} else {
+					setText(formatter.format(item));
+				}
+			};
+		});
 
 		isCompletedColumn.setCellValueFactory(cellData -> cellData.getValue().isCompletedProperty());
 		isCompletedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isCompletedColumn));

@@ -17,9 +17,9 @@
 	
 	<TableView fx:id="todoListView" VBox.vgrow="ALWAYS">
 		<columns>
-			<TableColumn fx:id="isCompletedColumn" text="完了"/>
-			<TableColumn fx:id="taskColumn" text="タスク"/>
-			<TableColumn fx:id="expirationColumn" text="期限"/>
+			<TableColumn prefWidth="50" style="-fx-alignment: CENTER;" fx:id="isCompletedColumn" text="完了"/>
+			<TableColumn prefWidth="350" fx:id="taskColumn" text="タスク"/>
+			<TableColumn prefWidth="100" style="-fx-alignment: CENTER;" fx:id="expirationColumn" text="期限"/>
 		</columns>
 	</TableView>
 
