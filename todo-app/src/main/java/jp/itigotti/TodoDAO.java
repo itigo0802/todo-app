@@ -45,7 +45,7 @@ public class TodoDAO {
                     item.setId(rs.getInt("id"));
                     item.setTask(rs.getString("task"));
                     item.setExpirationDate(rs.getObject("expiration_date", LocalDate.class));
-                    item.setIsCompleted(rs.getBoolean("is_completed"));
+                    item.setCompleted(rs.getBoolean("is_completed"));
                     todoList.add(item);
                 }
             }

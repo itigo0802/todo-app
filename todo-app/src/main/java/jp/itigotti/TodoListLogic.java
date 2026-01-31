@@ -28,7 +28,7 @@ public class TodoListLogic {
 		TodoItemModel item = new TodoItemModel();
 		item.setTask(task);
 		item.setExpirationDate(expirationDate);
-		item.setIsCompleted(false);
+		item.setCompleted(false);
 
 		if(dao.create(item) != null) {
 			todoItems.add(item);
@@ -50,7 +50,7 @@ public class TodoListLogic {
 	}
 
 	private void setupItemListener(TodoItemModel item) {
-		item.isCompletedProperty().addListener((obs, oldVal, newVal) -> {
+		item.completedProperty().addListener((obs, oldVal, newVal) -> {
 			dao.update(item);
 		});
 	}
