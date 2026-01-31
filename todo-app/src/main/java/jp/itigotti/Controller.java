@@ -23,7 +23,7 @@ public class Controller {
 	
 	private final TodoListLogic logic = new TodoListLogic();
 
-	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 	
 	@FXML
 	 private void initialize() {
