@@ -7,17 +7,20 @@
   	<maven.compiler.source>25</maven.compiler.source>
   	<maven.compiler.target>25</maven.compiler.target>
   	<javafx.version>25</javafx.version>
+	<javafx.platform>linux</javafx.platform>
   </properties>
   <dependencies>
   	<dependency>
   	    <groupId>org.openjfx</groupId>
   		<artifactId>javafx-controls</artifactId>
   		<version>${javafx.version}</version>
+		<classifier>${javafx.platform}</classifier>
   	</dependency>
   	<dependency>
   		<groupId>org.openjfx</groupId>
   		<artifactId>javafx-fxml</artifactId>
   		<version>${javafx.version}</version>
+		<classifier>${javafx.platform}</classifier>
   	</dependency>
 	<dependency>
 		<groupId>org.xerial</groupId>
