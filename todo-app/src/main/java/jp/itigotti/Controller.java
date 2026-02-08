@@ -27,6 +27,7 @@ public class Controller {
 	
 	@FXML
 	 private void initialize() {
+		logic.refresh();
 		todoListView.setItems(logic.getTodoItems());
 		todoListView.setEditable(true);
 

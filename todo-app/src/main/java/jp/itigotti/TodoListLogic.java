@@ -10,9 +10,6 @@ public class TodoListLogic {
 	private final TodoDAO dao = new TodoDAO();
 
 	public ObservableList<TodoItemModel> getTodoItems() {
-		List<TodoItemModel> items = dao.findAll();
-		items.forEach(this::setupItemListener);
-		todoItems.addAll(items);
 		return todoItems;
 	}
 	
@@ -31,6 +28,7 @@ public class TodoListLogic {
 		item.setCompleted(false);
 
 		if(dao.create(item) != null) {
+			setupItemListener(item);
 			todoItems.add(item);
 		}
 	}
@@ -55,4 +53,3 @@ public class TodoListLogic {
 		});
 	}
 }
-
