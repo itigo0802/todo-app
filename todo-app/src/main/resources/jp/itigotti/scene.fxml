@@ -24,6 +24,7 @@
 	</TableView>
 
 	
-	<Button text="選択項目を削除" onAction="#handleDeleteAction"/>
+	<HBox alignment="CENTER_RIGHT">
+		<Button text="選択項目を削除" onAction="#handleDeleteAction"/>
+	</HBox>
 </VBox>
-
