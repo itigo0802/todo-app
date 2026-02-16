@@ -28,6 +28,7 @@ public class Controller {
 	@FXML
 	 private void initialize() {
 		todoListView.setItems(logic.getTodoItems());
+		logic.refresh();
 		todoListView.setEditable(true);
 
 		taskColumn.setCellValueFactory(cellData -> cellData.getValue().taskProperty());
