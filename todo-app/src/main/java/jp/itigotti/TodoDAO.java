@@ -13,6 +13,9 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class TodoDAO {
     private static final String DB_URL;
@@ -20,17 +23,9 @@ public class TodoDAO {
 
     static {
         try {
-            java.net.URL location = TodoDAO.class.getProtectionDomain().getCodeSource().getLocation();
-            java.nio.file.Path locationPath = java.nio.file.Paths.get(location.toURI());
-
-            java.nio.file.Path dbFilePath;
-
-            if(locationPath.toString().endsWith(".jar")) {
-                java.nio.file.Path parentDir = locationPath.getParent();
-                dbFilePath = parentDir.resolve("todo.db");
-            } else {
-                dbFilePath = locationPath.getParent().resolve("todo.db");
-            }
+            URL location = TodoDAO.class.getProtectionDomain().getCodeSource().getLocation();
+            Path locationPath = Paths.get(location.toURI());
+            Path dbFilePath = locationPath.resolve("todo.db");
 
             DB_PATH = dbFilePath.toAbsolutePath().toString();
             DB_URL = "jdbc:sqlite:" + DB_PATH;
