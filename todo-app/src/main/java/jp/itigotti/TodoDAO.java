@@ -1,5 +1,7 @@
 package jp.itigotti;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -13,9 +15,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TodoDAO {
-    private static final String DB_URL = "jdbc:sqlite:todo.db";
+    private static final String DB_URL;
+    private static final String DB_PATH;
+
+    static {
+        try {
+            java.net.URL location = TodoDAO.class.getProtectionDomain().getCodeSource().getLocation();
+            java.nio.file.Path locationPath = java.nio.file.Paths.get(location.toURI());
+
+            java.nio.file.Path dbFilePath;
+
+            if(locationPath.toString().endsWith(".jar")) {
+                java.nio.file.Path parentDir = locationPath.getParent();
+                dbFilePath = parentDir.resolve("todo.db");
+            } else {
+                dbFilePath = locationPath.getParent().resolve("todo.db");
+            }
+
+            DB_PATH = dbFilePath.toAbsolutePath().toString();
+            DB_URL = "jdbc:sqlite:" + DB_PATH;
+
+        } catch(URISyntaxException e) {
+            e.printStackTrace();
+            throw new RuntimeException("データベースパスの取得に失敗しました", e);
+        }
+    }
 
     public void initializeDB() {
+        new File(DB_PATH).getParentFile().mkdirs();
         try(Connection conn = DriverManager.getConnection(DB_URL)) {
             String sql = "create table if not exists todo_items ("
                 + "id integer primary key autoincrement, "
