@@ -1,5 +1,7 @@
 package jp.itigotti;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -14,6 +16,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.CheckBoxTableCell;
 
 public class Controller {
+	private static final Logger LOGGER = System.getLogger(Controller.class.getName());
+
 	@FXML private TextField taskInput;
 	@FXML private DatePicker expirationDatePicker;
 	@FXML private TableView<TodoItemModel> todoListView;
@@ -28,7 +32,7 @@ public class Controller {
 	@FXML
 	 private void initialize() {
 		todoListView.setItems(logic.getTodoItems());
-		logic.refresh();
+		logic.setErrorHandler(e -> showError("更新エラー", e));
 		todoListView.setEditable(true);
 
 		taskColumn.setCellValueFactory(cellData -> cellData.getValue().taskProperty());
@@ -49,6 +53,12 @@ public class Controller {
 		isCompletedColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
 		isCompletedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isCompletedColumn));
 		isCompletedColumn.setEditable(true);
+
+		try {
+			logic.refresh();
+		} catch(DataAccessException e) {
+			showError("読み込みエラー", e);
+		}
 	}
 	
 	@FXML
@@ -58,19 +68,37 @@ public class Controller {
 			taskInput.clear();
 			expirationDatePicker.setValue(null);
 		} catch(IllegalArgumentException e) {
-			var alert = new Alert(AlertType.ERROR);
-			alert.setTitle("入力エラー");
-			alert.setHeaderText(null);
-			alert.setContentText(e.getMessage());
-			alert.showAndWait();
+			showAlert(AlertType.ERROR, "入力エラー", e.getMessage());
+		} catch(DataAccessException e) {
+			showError("登録エラー", e);
 		}
 	}
 	
 	@FXML
 	private void handleDeleteAction() {
 		TodoItemModel selected = todoListView.getSelectionModel().getSelectedItem();
-		if(selected != null) {
-			logic.removeTodoItem(selected);
+		if(selected == null) {
+			showAlert(AlertType.WARNING, "削除エラー", "削除する項目が選択されていません");
+			return;
 		}
+
+		try {
+			logic.removeTodoItem(selected);
+		} catch(DataAccessException e) {
+			showError("削除エラー", e);
+		}
+	}
+
+	private void showError(String title, RuntimeException e) {
+		LOGGER.log(Level.ERROR, title + ": " + e.getMessage(), e);
+		showAlert(AlertType.ERROR, title, e.getMessage());
+	}
+
+	private void showAlert(AlertType type, String title, String message) {
+		var alert = new Alert(type);
+		alert.setTitle(title);
+		alert.setHeaderText(null);
+		alert.setContentText(message);
+		alert.showAndWait();
 	}
 }

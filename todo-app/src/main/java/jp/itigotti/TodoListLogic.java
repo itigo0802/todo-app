@@ -1,18 +1,42 @@
 package jp.itigotti;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javafx.collections.ObservableList;
 
 public class TodoListLogic {
+	private static final Logger LOGGER = System.getLogger(TodoListLogic.class.getName());
+
 	private final ObservableList<TodoItemModel> todoItems = javafx.collections.FXCollections.observableArrayList();
-	private final TodoDAO dao = new TodoDAO();
+	private final TodoDAO dao;
+
+	private Consumer<RuntimeException> errorHandler = e -> LOGGER.log(Level.ERROR, e.getMessage(), e);
+	private boolean revertingCompleted;
+
+	public TodoListLogic() {
+		this(new TodoDAO());
+	}
+
+	public TodoListLogic(TodoDAO dao) {
+		this.dao = dao;
+	}
 
 	public ObservableList<TodoItemModel> getTodoItems() {
 		return todoItems;
 	}
-	
+
+	/**
+	 * Registers the handler notified about failures that happen outside of a caller's
+	 * control flow, such as a persistence error triggered by toggling an item.
+	 */
+	public void setErrorHandler(Consumer<RuntimeException> errorHandler) {
+		this.errorHandler = errorHandler;
+	}
+
 	public void addTodoItem(String task, LocalDate expirationDate) {
 		if(task == null || task.isBlank()) {
 			throw new IllegalArgumentException("タスクが入力されていません");
@@ -27,30 +51,40 @@ public class TodoListLogic {
 		item.setExpirationDate(expirationDate);
 		item.setCompleted(false);
 
-		if(dao.create(item) != null) {
-			setupItemListener(item);
-			todoItems.add(item);
-		}
+		dao.create(item);
+		setupItemListener(item);
+		todoItems.add(item);
 	}
 	
 	
 	public void removeTodoItem(TodoItemModel item) {
-		if(dao.delete(item)) {
-			todoItems.remove(item);
-		}
+		dao.delete(item);
+		todoItems.remove(item);
 	}
 
 	public void refresh() {
-		todoItems.clear();
 		List<TodoItemModel> items = dao.findAll();
 		items.forEach(this::setupItemListener);
-		todoItems.addAll(items);
+		todoItems.setAll(items);
 	}
 
 	private void setupItemListener(TodoItemModel item) {
 		item.completedProperty().addListener((obs, oldVal, newVal) -> {
-			dao.update(item);
+			if(revertingCompleted) {
+				return;
+			}
+
+			try {
+				dao.update(item);
+			} catch(RuntimeException e) {
+				revertingCompleted = true;
+				try {
+					item.setCompleted(oldVal);
+				} finally {
+					revertingCompleted = false;
+				}
+				errorHandler.accept(e);
+			}
 		});
 	}
 }
-

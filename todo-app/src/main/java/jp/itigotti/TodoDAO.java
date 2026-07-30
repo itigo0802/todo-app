@@ -31,13 +31,16 @@ public class TodoDAO {
             DB_URL = "jdbc:sqlite:" + DB_PATH;
 
         } catch(URISyntaxException e) {
-            e.printStackTrace();
-            throw new RuntimeException("データベースパスの取得に失敗しました", e);
+            throw new DataAccessException("データベースパスの取得に失敗しました", e);
         }
     }
 
     public void initializeDB() {
-        new File(DB_PATH).getParentFile().mkdirs();
+        File parentDir = new File(DB_PATH).getParentFile();
+        if(parentDir != null && !parentDir.isDirectory() && !parentDir.mkdirs()) {
+            throw new DataAccessException("DBの格納先ディレクトリの作成に失敗しました: " + parentDir);
+        }
+
         try(Connection conn = DriverManager.getConnection(DB_URL)) {
             String sql = "create table if not exists todo_items ("
                 + "id integer primary key autoincrement, "
@@ -49,8 +52,7 @@ public class TodoDAO {
                 pStmt.executeUpdate();
             }
         } catch(SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("DBの初期化に失敗しました", e);
+            throw new DataAccessException("DBの初期化に失敗しました", e);
         }
     }
 
@@ -59,8 +61,8 @@ public class TodoDAO {
         try(Connection conn = DriverManager.getConnection(DB_URL)) {
             String sql = "select * from todo_items";
 
-            try(PreparedStatement pStmt = conn.prepareStatement(sql)) {
-                ResultSet rs = pStmt.executeQuery();
+            try(PreparedStatement pStmt = conn.prepareStatement(sql);
+                ResultSet rs = pStmt.executeQuery()) {
 
                 while(rs.next()) {
                     TodoItemModel item = new TodoItemModel();
@@ -72,8 +74,7 @@ public class TodoDAO {
                 }
             }
         } catch(SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("DBの読み込みに失敗しました", e);
+            throw new DataAccessException("DBの読み込みに失敗しました", e);
         }
         return todoList;
     }
@@ -93,19 +94,21 @@ public class TodoDAO {
                     pStmt.setNull(2, Types.DATE);
                 }
 
-                if(pStmt.executeUpdate() == 1) {
-                    ResultSet rs = pStmt.getGeneratedKeys();
+                if(pStmt.executeUpdate() != 1) {
+                    throw new DataAccessException("DBへの登録に失敗しました");
+                }
+
+                try(ResultSet rs = pStmt.getGeneratedKeys()) {
                     if(rs.next()) {
                         item.setId(rs.getInt(1));
+                    } else {
+                        throw new DataAccessException("登録したタスクのIDを取得できませんでした");
                     }
-                    return item;
-                } else {
-                    return null;
                 }
+                return item;
             }
         } catch(SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("DBへの登録に失敗しました", e);
+            throw new DataAccessException("DBへの登録に失敗しました", e);
         }
     }
 
@@ -126,30 +129,29 @@ public class TodoDAO {
                 pStmt.setBoolean(3, item.isCompleted());
                 pStmt.setInt(4, item.getId());
 
-                if(pStmt.executeUpdate() == 1) {
-                    return item;
-                } else {
-                    return null;
+                if(pStmt.executeUpdate() != 1) {
+                    throw new DataAccessException("更新対象のタスクが見つかりませんでした");
                 }
+                return item;
             }
         } catch(SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("DBへの更新に失敗しました", e);
+            throw new DataAccessException("DBへの更新に失敗しました", e);
         }
     }
 
-    public boolean delete(TodoItemModel item) {
+    public void delete(TodoItemModel item) {
         try(Connection conn = DriverManager.getConnection(DB_URL)) {
             String sql = "delete from todo_items where id = ?;";
 
             try(PreparedStatement pStmt = conn.prepareStatement(sql)) {
                 pStmt.setInt(1, item.getId());
 
-                return pStmt.executeUpdate() == 1;
+                if(pStmt.executeUpdate() != 1) {
+                    throw new DataAccessException("削除対象のタスクが見つかりませんでした");
+                }
             }
         } catch(SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("DBへの削除に失敗しました", e);
+            throw new DataAccessException("DBからの削除に失敗しました", e);
         }
     }
 }
