@@ -1,6 +1,6 @@
 package jp.itigotti;
 
-import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.sql.Connection;
 import java.sql.Date;
@@ -13,31 +13,36 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.PosixFilePermissions;
 
 public class TodoDAO {
+    private static final Logger LOGGER = Logger.getLogger(TodoDAO.class.getName());
+
     private static final String DB_URL;
-    private static final String DB_PATH;
+    private static final Path DB_FILE;
 
     static {
         try {
             URL location = TodoDAO.class.getProtectionDomain().getCodeSource().getLocation();
             Path locationPath = Paths.get(location.toURI());
-            Path dbFilePath = locationPath.resolve("todo.db");
 
-            DB_PATH = dbFilePath.toAbsolutePath().toString();
-            DB_URL = "jdbc:sqlite:" + DB_PATH;
+            DB_FILE = locationPath.resolve("todo.db").toAbsolutePath();
+            DB_URL = "jdbc:sqlite:" + DB_FILE;
 
         } catch(URISyntaxException e) {
-            e.printStackTrace();
             throw new RuntimeException("データベースパスの取得に失敗しました", e);
         }
     }
 
     public void initializeDB() {
-        new File(DB_PATH).getParentFile().mkdirs();
+        createDbFileForOwnerOnly();
         try(Connection conn = DriverManager.getConnection(DB_URL)) {
             String sql = "create table if not exists todo_items ("
                 + "id integer primary key autoincrement, "
@@ -49,8 +54,24 @@ public class TodoDAO {
                 pStmt.executeUpdate();
             }
         } catch(SQLException e) {
-            e.printStackTrace();
             throw new RuntimeException("DBの初期化に失敗しました", e);
+        }
+    }
+
+    private static void createDbFileForOwnerOnly() {
+        try {
+            Path parent = DB_FILE.getParent();
+            if(parent != null) {
+                Files.createDirectories(parent);
+            }
+            if(Files.notExists(DB_FILE)) {
+                Files.createFile(DB_FILE);
+            }
+            if(Files.getFileStore(DB_FILE).supportsFileAttributeView(PosixFileAttributeView.class)) {
+                Files.setPosixFilePermissions(DB_FILE, PosixFilePermissions.fromString("rw-------"));
+            }
+        } catch(IOException | UnsupportedOperationException e) {
+            LOGGER.log(Level.WARNING, "DBファイルのアクセス権の設定に失敗しました", e);
         }
     }
 
@@ -59,8 +80,8 @@ public class TodoDAO {
         try(Connection conn = DriverManager.getConnection(DB_URL)) {
             String sql = "select * from todo_items";
 
-            try(PreparedStatement pStmt = conn.prepareStatement(sql)) {
-                ResultSet rs = pStmt.executeQuery();
+            try(PreparedStatement pStmt = conn.prepareStatement(sql);
+                ResultSet rs = pStmt.executeQuery()) {
 
                 while(rs.next()) {
                     TodoItemModel item = new TodoItemModel();
@@ -72,7 +93,6 @@ public class TodoDAO {
                 }
             }
         } catch(SQLException e) {
-            e.printStackTrace();
             throw new RuntimeException("DBの読み込みに失敗しました", e);
         }
         return todoList;
@@ -94,9 +114,10 @@ public class TodoDAO {
                 }
 
                 if(pStmt.executeUpdate() == 1) {
-                    ResultSet rs = pStmt.getGeneratedKeys();
-                    if(rs.next()) {
-                        item.setId(rs.getInt(1));
+                    try(ResultSet rs = pStmt.getGeneratedKeys()) {
+                        if(rs.next()) {
+                            item.setId(rs.getInt(1));
+                        }
                     }
                     return item;
                 } else {
@@ -104,7 +125,6 @@ public class TodoDAO {
                 }
             }
         } catch(SQLException e) {
-            e.printStackTrace();
             throw new RuntimeException("DBへの登録に失敗しました", e);
         }
     }
@@ -133,7 +153,6 @@ public class TodoDAO {
                 }
             }
         } catch(SQLException e) {
-            e.printStackTrace();
             throw new RuntimeException("DBへの更新に失敗しました", e);
         }
     }
@@ -148,7 +167,6 @@ public class TodoDAO {
                 return pStmt.executeUpdate() == 1;
             }
         } catch(SQLException e) {
-            e.printStackTrace();
             throw new RuntimeException("DBへの削除に失敗しました", e);
         }
     }

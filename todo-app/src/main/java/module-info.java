@@ -3,6 +3,7 @@ module jp.itigotti.module {
     requires javafx.fxml;
     requires transitive javafx.base;
     requires transitive javafx.graphics;
+    requires java.logging;
     requires java.sql;
 
     opens jp.itigotti to javafx.fxml;

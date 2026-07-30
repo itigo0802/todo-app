@@ -6,6 +6,8 @@ import java.util.List;
 import javafx.collections.ObservableList;
 
 public class TodoListLogic {
+	static final int MAX_TASK_LENGTH = 200;
+
 	private final ObservableList<TodoItemModel> todoItems = javafx.collections.FXCollections.observableArrayList();
 	private final TodoDAO dao = new TodoDAO();
 
@@ -22,8 +24,13 @@ public class TodoListLogic {
 			throw new IllegalArgumentException("期限が入力されていません");
 		}
 
+		String normalizedTask = task.strip();
+		if(normalizedTask.length() > MAX_TASK_LENGTH) {
+			throw new IllegalArgumentException("タスクは" + MAX_TASK_LENGTH + "文字以内で入力してください");
+		}
+
 		TodoItemModel item = new TodoItemModel();
-		item.setTask(task);
+		item.setTask(normalizedTask);
 		item.setExpirationDate(expirationDate);
 		item.setCompleted(false);
 
