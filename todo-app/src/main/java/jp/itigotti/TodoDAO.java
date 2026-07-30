@@ -36,120 +36,108 @@ public class TodoDAO {
         }
     }
 
-    public void initializeDB() {
-        new File(DB_PATH).getParentFile().mkdirs();
-        try(Connection conn = DriverManager.getConnection(DB_URL)) {
-            String sql = "create table if not exists todo_items ("
-                + "id integer primary key autoincrement, "
-                + "task text not null, "
-                + "expiration_date date, "
-                + "is_completed boolean not null default false);";
+    @FunctionalInterface
+    private interface StatementFunction<T> {
+        T apply(PreparedStatement pStmt) throws SQLException;
+    }
 
-            try(PreparedStatement pStmt = conn.prepareStatement(sql)) {
-                pStmt.executeUpdate();
+    private <T> T execute(String sql, boolean returnGeneratedKeys, String errorMessage,
+            StatementFunction<T> action) {
+        try(Connection conn = DriverManager.getConnection(DB_URL)) {
+            try(PreparedStatement pStmt = returnGeneratedKeys
+                    ? conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+                    : conn.prepareStatement(sql)) {
+                return action.apply(pStmt);
             }
         } catch(SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException("DBの初期化に失敗しました", e);
+            throw new RuntimeException(errorMessage, e);
         }
+    }
+
+    private <T> T execute(String sql, String errorMessage, StatementFunction<T> action) {
+        return execute(sql, false, errorMessage, action);
+    }
+
+    private static void setExpirationDate(PreparedStatement pStmt, int index, LocalDate date)
+            throws SQLException {
+        if(date != null) {
+            pStmt.setDate(index, Date.valueOf(date));
+        } else {
+            pStmt.setNull(index, Types.DATE);
+        }
+    }
+
+    public void initializeDB() {
+        new File(DB_PATH).getParentFile().mkdirs();
+        String sql = "create table if not exists todo_items ("
+            + "id integer primary key autoincrement, "
+            + "task text not null, "
+            + "expiration_date date, "
+            + "is_completed boolean not null default false);";
+
+        execute(sql, "DBの初期化に失敗しました", pStmt -> pStmt.executeUpdate());
     }
 
     public List<TodoItemModel> findAll() {
-        List<TodoItemModel> todoList = new ArrayList<>();
-        try(Connection conn = DriverManager.getConnection(DB_URL)) {
-            String sql = "select * from todo_items";
+        return execute("select * from todo_items", "DBの読み込みに失敗しました", pStmt -> {
+            List<TodoItemModel> todoList = new ArrayList<>();
+            ResultSet rs = pStmt.executeQuery();
 
-            try(PreparedStatement pStmt = conn.prepareStatement(sql)) {
-                ResultSet rs = pStmt.executeQuery();
-
-                while(rs.next()) {
-                    TodoItemModel item = new TodoItemModel();
-                    item.setId(rs.getInt("id"));
-                    item.setTask(rs.getString("task"));
-                    item.setExpirationDate(rs.getObject("expiration_date", LocalDate.class));
-                    item.setCompleted(rs.getBoolean("is_completed"));
-                    todoList.add(item);
-                }
+            while(rs.next()) {
+                TodoItemModel item = new TodoItemModel();
+                item.setId(rs.getInt("id"));
+                item.setTask(rs.getString("task"));
+                item.setExpirationDate(rs.getObject("expiration_date", LocalDate.class));
+                item.setCompleted(rs.getBoolean("is_completed"));
+                todoList.add(item);
             }
-        } catch(SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("DBの読み込みに失敗しました", e);
-        }
-        return todoList;
+            return todoList;
+        });
     }
 
     public TodoItemModel create(TodoItemModel item) {
-        try(Connection conn = DriverManager.getConnection(DB_URL)) {
-            String sql = "insert into todo_items (task, expiration_date) values ("
-                + "?, "
-                + "?);";
-            
-            try(PreparedStatement pStmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                pStmt.setString(1, item.getTask());
+        String sql = "insert into todo_items (task, expiration_date) values ("
+            + "?, "
+            + "?);";
 
-                if(item.getExpirationDate() != null) {
-                    pStmt.setDate(2, Date.valueOf(item.getExpirationDate()));
-                } else {
-                    pStmt.setNull(2, Types.DATE);
-                }
+        return execute(sql, true, "DBへの登録に失敗しました", pStmt -> {
+            pStmt.setString(1, item.getTask());
+            setExpirationDate(pStmt, 2, item.getExpirationDate());
 
-                if(pStmt.executeUpdate() == 1) {
-                    ResultSet rs = pStmt.getGeneratedKeys();
-                    if(rs.next()) {
-                        item.setId(rs.getInt(1));
-                    }
-                    return item;
-                } else {
-                    return null;
+            if(pStmt.executeUpdate() == 1) {
+                ResultSet rs = pStmt.getGeneratedKeys();
+                if(rs.next()) {
+                    item.setId(rs.getInt(1));
                 }
+                return item;
+            } else {
+                return null;
             }
-        } catch(SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("DBへの登録に失敗しました", e);
-        }
+        });
     }
 
     public TodoItemModel update(TodoItemModel item) {
-        try(Connection conn = DriverManager.getConnection(DB_URL)) {
-            String sql = "update todo_items set task = ?, "
-                + "expiration_date = ?, "
-                + "is_completed = ? "
-                + "where id = ?;";
-            
-            try(PreparedStatement pStmt = conn.prepareStatement(sql)) {
-                pStmt.setString(1, item.getTask());
-                if(item.getExpirationDate() != null) {
-                    pStmt.setDate(2, Date.valueOf(item.getExpirationDate()));
-                } else {
-                    pStmt.setNull(2, Types.DATE);
-                }
-                pStmt.setBoolean(3, item.isCompleted());
-                pStmt.setInt(4, item.getId());
+        String sql = "update todo_items set task = ?, "
+            + "expiration_date = ?, "
+            + "is_completed = ? "
+            + "where id = ?;";
 
-                if(pStmt.executeUpdate() == 1) {
-                    return item;
-                } else {
-                    return null;
-                }
-            }
-        } catch(SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("DBへの更新に失敗しました", e);
-        }
+        return execute(sql, "DBへの更新に失敗しました", pStmt -> {
+            pStmt.setString(1, item.getTask());
+            setExpirationDate(pStmt, 2, item.getExpirationDate());
+            pStmt.setBoolean(3, item.isCompleted());
+            pStmt.setInt(4, item.getId());
+
+            return pStmt.executeUpdate() == 1 ? item : null;
+        });
     }
 
     public boolean delete(TodoItemModel item) {
-        try(Connection conn = DriverManager.getConnection(DB_URL)) {
-            String sql = "delete from todo_items where id = ?;";
+        return execute("delete from todo_items where id = ?;", "DBへの削除に失敗しました", pStmt -> {
+            pStmt.setInt(1, item.getId());
 
-            try(PreparedStatement pStmt = conn.prepareStatement(sql)) {
-                pStmt.setInt(1, item.getId());
-
-                return pStmt.executeUpdate() == 1;
-            }
-        } catch(SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("DBへの削除に失敗しました", e);
-        }
+            return pStmt.executeUpdate() == 1;
+        });
     }
 }
