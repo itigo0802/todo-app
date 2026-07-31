@@ -1,7 +1,6 @@
 package jp.itigotti;
 
-import java.io.File;
-import java.net.URISyntaxException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -13,7 +12,7 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -22,22 +21,30 @@ public class TodoDAO {
     private static final String DB_PATH;
 
     static {
-        try {
-            URL location = TodoDAO.class.getProtectionDomain().getCodeSource().getLocation();
-            Path locationPath = Paths.get(location.toURI());
-            Path dbFilePath = locationPath.resolve("todo.db");
+        Path portablePath = Paths.get("todo.db");
+        Path portableDir = portablePath.getParent();
 
-            DB_PATH = dbFilePath.toAbsolutePath().toString();
-            DB_URL = "jdbc:sqlite:" + DB_PATH;
+        if(portableDir != null && Files.isWritable(portableDir)) {
+            DB_PATH = portablePath.toAbsolutePath().toString();
+        } else {
+            String userHome = System.getProperty("user.home");
+            if(userHome == null) {
+                throw new RuntimeException("ユーザーホームディレクトリが取得できません");
+            }
 
-        } catch(URISyntaxException e) {
-            e.printStackTrace();
-            throw new RuntimeException("データベースパスの取得に失敗しました", e);
+            Path homeDir = Paths.get(userHome, ".todo-app");
+            try {
+                Files.createDirectories(homeDir);
+            } catch(IOException e) {
+                throw new RuntimeException("データベースディレクトリの作成に失敗しました", e);
+            }
+
+            DB_PATH = homeDir.resolve("todo.db").toString();
         }
+        DB_URL = "jdbc:sqlite:" + DB_PATH;
     }
 
     public void initializeDB() {
-        new File(DB_PATH).getParentFile().mkdirs();
         try(Connection conn = DriverManager.getConnection(DB_URL)) {
             String sql = "create table if not exists todo_items ("
                 + "id integer primary key autoincrement, "
