@@ -82,11 +82,7 @@ public class TodoDAOTest {
         assertNotNull(result, "結果がnullです");
         assertNotNull(result.getId(), "IDがnullです");
 
-        TodoItemModel expected = new TodoItemModel();
-        expected.setId(result.getId());
-        expected.setTask("テストタスク");
-        expected.setExpirationDate(LocalDate.now());
-        expected.setCompleted(false);
+        TodoItemModel expected = createTestItem(result.getId(), "テストタスク", LocalDate.now(), false);
         assertItemEquals(expected, result);
     }
 
