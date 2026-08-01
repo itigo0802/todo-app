@@ -14,34 +14,32 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.CheckBoxTableCell;
 
 public class Controller {
-	@FXML private TextField taskInput;
-	@FXML private DatePicker expirationDatePicker;
-	@FXML private TableView<TodoItemModel> todoListView;
-	@FXML private TableColumn<TodoItemModel, String> taskColumn;
-	@FXML private TableColumn<TodoItemModel, LocalDate> expirationColumn;
-	@FXML private TableColumn<TodoItemModel, Boolean> isCompletedColumn;
-	
-	private TodoDAO dao;
+	@FXML
+	private TextField taskInput;
+	@FXML
+	private DatePicker expirationDatePicker;
+	@FXML
+	private TableView<TodoItemModel> todoListView;
+	@FXML
+	private TableColumn<TodoItemModel, String> taskColumn;
+	@FXML
+	private TableColumn<TodoItemModel, LocalDate> expirationColumn;
+	@FXML
+	private TableColumn<TodoItemModel, Boolean> isCompletedColumn;
+
 	private TodoListLogic logic;
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
-	public void setDao(TodoDAO dao) {
-		this.dao = dao;
+	public Controller(TodoDAO dao) {
 		this.logic = new TodoListLogic(dao);
-
-		if(todoListView != null) {
-			todoListView.setItems(logic.getTodoItems());
-			logic.refresh();
-		}
 	}
-	
+
 	@FXML
-	 private void initialize() {
-		if(logic != null) {
-			todoListView.setItems(logic.getTodoItems());
-			logic.refresh();
-		}
+	private void initialize() {
+		todoListView.setItems(logic.getTodoItems());
+		logic.refresh();
+
 		todoListView.setEditable(true);
 
 		taskColumn.setCellValueFactory(cellData -> cellData.getValue().taskProperty());
@@ -51,7 +49,7 @@ public class Controller {
 			@Override
 			protected void updateItem(LocalDate item, boolean empty) {
 				super.updateItem(item, empty);
-				if(empty || item == null) {
+				if (empty || item == null) {
 					setText(null);
 				} else {
 					setText(FORMATTER.format(item));
@@ -63,14 +61,14 @@ public class Controller {
 		isCompletedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isCompletedColumn));
 		isCompletedColumn.setEditable(true);
 	}
-	
+
 	@FXML
 	private void handleAddAction() {
 		try {
 			logic.addTodoItem(taskInput.getText(), expirationDatePicker.getValue());
 			taskInput.clear();
 			expirationDatePicker.setValue(null);
-		} catch(IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 			var alert = new Alert(AlertType.ERROR);
 			alert.setTitle("入力エラー");
 			alert.setHeaderText(null);
@@ -78,11 +76,11 @@ public class Controller {
 			alert.showAndWait();
 		}
 	}
-	
+
 	@FXML
 	private void handleDeleteAction() {
 		TodoItemModel selected = todoListView.getSelectionModel().getSelectedItem();
-		if(selected != null) {
+		if (selected != null) {
 			logic.removeTodoItem(selected);
 		}
 	}
