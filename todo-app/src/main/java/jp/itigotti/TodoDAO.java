@@ -19,6 +19,15 @@ import java.nio.file.Paths;
 public class TodoDAO {
     private static final String DB_URL;
     private static final String DB_PATH;
+    private final String dbUrl;
+
+    public TodoDAO() {
+        this.dbUrl = DB_URL;
+    }
+
+    public TodoDAO(String customDbUrl) {
+        this.dbUrl = customDbUrl;
+    }
 
     static {
         Path portablePath = Paths.get("todo.db");
