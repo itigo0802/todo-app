@@ -64,7 +64,7 @@ public class TodoDAO {
     public List<TodoItemModel> findAll() {
         List<TodoItemModel> todoList = new ArrayList<>();
         try(Connection conn = DriverManager.getConnection(DB_URL)) {
-            String sql = "select * from todo_items";
+            String sql = "select * from todo_items order by expiration_date asc, id asc";
 
             try(PreparedStatement pStmt = conn.prepareStatement(sql)) {
                 ResultSet rs = pStmt.executeQuery();
@@ -87,7 +87,8 @@ public class TodoDAO {
 
     public TodoItemModel create(TodoItemModel item) {
         try(Connection conn = DriverManager.getConnection(DB_URL)) {
-            String sql = "insert into todo_items (task, expiration_date) values ("
+            String sql = "insert into todo_items (task, expiration_date, is_completed) values ("
+                + "?,"
                 + "?, "
                 + "?);";
             
@@ -99,6 +100,8 @@ public class TodoDAO {
                 } else {
                     pStmt.setNull(2, Types.DATE);
                 }
+
+                pStmt.setBoolean(3, false);
 
                 if(pStmt.executeUpdate() == 1) {
                     ResultSet rs = pStmt.getGeneratedKeys();

@@ -21,14 +21,27 @@ public class Controller {
 	@FXML private TableColumn<TodoItemModel, LocalDate> expirationColumn;
 	@FXML private TableColumn<TodoItemModel, Boolean> isCompletedColumn;
 	
-	private final TodoListLogic logic = new TodoListLogic();
+	private TodoDAO dao;
+	private TodoListLogic logic;
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+
+	public void setDao(TodoDAO dao) {
+		this.dao = dao;
+		this.logic = new TodoListLogic(dao);
+
+		if(todoListView != null) {
+			todoListView.setItems(logic.getTodoItems());
+			logic.refresh();
+		}
+	}
 	
 	@FXML
 	 private void initialize() {
-		todoListView.setItems(logic.getTodoItems());
-		logic.refresh();
+		if(logic != null) {
+			todoListView.setItems(logic.getTodoItems());
+			logic.refresh();
+		}
 		todoListView.setEditable(true);
 
 		taskColumn.setCellValueFactory(cellData -> cellData.getValue().taskProperty());
