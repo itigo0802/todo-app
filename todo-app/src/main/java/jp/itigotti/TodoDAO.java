@@ -54,7 +54,7 @@ public class TodoDAO {
     }
 
     public void initializeDB() {
-        try(Connection conn = DriverManager.getConnection(DB_URL)) {
+        try(Connection conn = DriverManager.getConnection(dbUrl)) {
             String sql = "create table if not exists todo_items ("
                 + "id integer primary key autoincrement, "
                 + "task text not null, "
@@ -72,7 +72,7 @@ public class TodoDAO {
 
     public List<TodoItemModel> findAll() {
         List<TodoItemModel> todoList = new ArrayList<>();
-        try(Connection conn = DriverManager.getConnection(DB_URL)) {
+        try(Connection conn = DriverManager.getConnection(dbUrl)) {
             String sql = "select * from todo_items order by expiration_date asc, id asc";
 
             try(PreparedStatement pStmt = conn.prepareStatement(sql)) {
@@ -95,7 +95,7 @@ public class TodoDAO {
     }
 
     public TodoItemModel create(TodoItemModel item) {
-        try(Connection conn = DriverManager.getConnection(DB_URL)) {
+        try(Connection conn = DriverManager.getConnection(dbUrl)) {
             String sql = "insert into todo_items (task, expiration_date, is_completed) values ("
                 + "?,"
                 + "?, "
@@ -129,7 +129,7 @@ public class TodoDAO {
     }
 
     public TodoItemModel update(TodoItemModel item) {
-        try(Connection conn = DriverManager.getConnection(DB_URL)) {
+        try(Connection conn = DriverManager.getConnection(dbUrl)) {
             String sql = "update todo_items set task = ?, "
                 + "expiration_date = ?, "
                 + "is_completed = ? "
@@ -158,7 +158,7 @@ public class TodoDAO {
     }
 
     public boolean delete(TodoItemModel item) {
-        try(Connection conn = DriverManager.getConnection(DB_URL)) {
+        try(Connection conn = DriverManager.getConnection(dbUrl)) {
             String sql = "delete from todo_items where id = ?;";
 
             try(PreparedStatement pStmt = conn.prepareStatement(sql)) {
