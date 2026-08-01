@@ -21,9 +21,15 @@ public class Controller {
 	@FXML private TableColumn<TodoItemModel, LocalDate> expirationColumn;
 	@FXML private TableColumn<TodoItemModel, Boolean> isCompletedColumn;
 	
-	private final TodoListLogic logic = new TodoListLogic();
+	private TodoDAO dao;
+	private TodoListLogic logic;
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+
+	public void setDao(TodoDAO dao) {
+		this.dao = dao;
+		this.logic = new TodoListLogic(dao);
+	}
 	
 	@FXML
 	 private void initialize() {

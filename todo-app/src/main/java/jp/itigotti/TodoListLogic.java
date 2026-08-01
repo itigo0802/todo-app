@@ -7,7 +7,11 @@ import javafx.collections.ObservableList;
 
 public class TodoListLogic {
 	private final ObservableList<TodoItemModel> todoItems = javafx.collections.FXCollections.observableArrayList();
-	private final TodoDAO dao = new TodoDAO();
+	private final TodoDAO dao;
+
+	public TodoListLogic(TodoDAO dao) {
+		this.dao = dao;
+	}
 
 	public ObservableList<TodoItemModel> getTodoItems() {
 		return todoItems;
