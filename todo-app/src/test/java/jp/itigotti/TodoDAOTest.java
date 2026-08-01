@@ -94,4 +94,20 @@ public class TodoDAOTest {
         assertTrue(result.isEmpty(), "結果が空でありません");
     }
 
+    @Test
+    void testFindAll_TODO項目が存在する場合() {
+        TodoItemModel item = new TodoItemModel();
+        item.setTask("テストタスク");
+        item.setExpirationDate(LocalDate.now());
+        item.setCompleted(false);
+
+        dao.create(item);
+        
+        List<TodoItemModel> result = dao.findAll();
+        assertNotNull(result, "結果がnullです");
+        assertFalse(result.isEmpty(), "結果が空です");
+        assertEquals(1, result.size(), "結果のサイズが一致しません");
+        assertItemEquals(item, result.get(0));
+    }
+
 }
