@@ -29,12 +29,19 @@ public class Controller {
 	public void setDao(TodoDAO dao) {
 		this.dao = dao;
 		this.logic = new TodoListLogic(dao);
+
+		if(todoListView != null) {
+			todoListView.setItems(logic.getTodoItems());
+			logic.refresh();
+		}
 	}
 	
 	@FXML
 	 private void initialize() {
-		todoListView.setItems(logic.getTodoItems());
-		logic.refresh();
+		if(logic != null) {
+			todoListView.setItems(logic.getTodoItems());
+			logic.refresh();
+		}
 		todoListView.setEditable(true);
 
 		taskColumn.setCellValueFactory(cellData -> cellData.getValue().taskProperty());
