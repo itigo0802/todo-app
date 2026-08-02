@@ -61,7 +61,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name}}
+          name: ${{ matrix.artifact_name }}
           path: todo-app/target/TodoApp.zip
           if-no-files-found: error
 
