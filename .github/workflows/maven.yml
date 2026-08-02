@@ -58,22 +58,10 @@ jobs:
         working-directory: ./todo-app
         if: matrix.os != 'ubuntu-latest'
 
-      - name: Zip app image(macos/linux)
-        if: matrix.os != 'windows-latest'
-        run: |
-          cd todo-app/target/dist
-          zip -r ../../../${{ matrix.artifact_name }}.zip TodoApp
-        shell: bash
-
-      - name: Zip app image(windows)
-        if: matrix.os == 'windows-latest'
-        run: Compress-Archive -Path todo-app/target/dist/TodoApp -DestinationPath ${{ matrix.artifact_name }}.zip
-        shell: pwsh
-
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name}}
-          path: ${{ matrix.artifact_name }}.zip
+          path: todo-app/target/TodoApp.zip
           if-no-files-found: error
 
