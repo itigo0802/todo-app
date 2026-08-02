@@ -9,6 +9,7 @@ public class TodoItemModel {
     private final StringProperty task = new SimpleStringProperty();
     private final ObjectProperty<LocalDate> expirationDate = new SimpleObjectProperty<>();
     private final BooleanProperty completed = new SimpleBooleanProperty();
+    private boolean hasCompletedListener = false;
 
     public int getId() {
         return id.get();
@@ -49,6 +50,14 @@ public class TodoItemModel {
     }
     public BooleanProperty completedProperty() {
         return completed;
+    }
+
+    public boolean isListenerInstalled() {
+        return hasCompletedListener;
+    }
+
+    public void setListenerInstalled(boolean hasCompletedListener) {
+        this.hasCompletedListener = hasCompletedListener;
     }
 
 }

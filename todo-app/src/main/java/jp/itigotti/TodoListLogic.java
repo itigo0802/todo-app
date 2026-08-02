@@ -52,9 +52,13 @@ public class TodoListLogic {
 	}
 
 	private void setupItemListener(TodoItemModel item) {
+		if (item.isListenerInstalled()) {
+			return;
+		}
 		item.completedProperty().addListener((obs, oldVal, newVal) -> {
 			dao.update(item);
 		});
+		item.setListenerInstalled(true);
 	}
 }
 
