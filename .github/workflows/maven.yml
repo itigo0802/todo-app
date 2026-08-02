@@ -17,21 +17,19 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         include:
           - os: ubuntu-latest
             profile: linux
             artifact_name: todo-app-linux
-            file_extension: .tar.gz
           - os: windows-latest
             profile: windows
             artifact_name: todo-app-windows
-            file_extension: .zip
           - os: macos-latest
             profile: mac
             artifact_name: todo-app-macos
-            file_extension: .tar.gz
 
     runs-on: ${{ matrix.os }}
 
@@ -51,17 +49,31 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y xvfb
 
       - name: Build with Maven(Linux)
-        run: xvfb-run -a mvn clean test package -P${{ matrix.profile }}
+        run: xvfb-run -a mvn clean package -P${{ matrix.profile }}
         working-directory: ./todo-app
         if: matrix.os == 'ubuntu-latest'
 
       - name: Build with Maven (Windows/mac)
-        run: mvn clean test package -P${{ matrix.profile }}
+        run: mvn clean package -P${{ matrix.profile }}
         working-directory: ./todo-app
         if: matrix.os != 'ubuntu-latest'
+
+      - name: Zip app image(macos/linux)
+        if: matrix.os != 'windows-latest'
+        run: |
+          cd todo-app/target/dist
+          zip -r ../../../${{ matrix.artifact_name }}.zip TodoApp
+        shell: bash
+
+      - name: Zip app image(windows)
+        if: matrix.os == 'windows-latest'
+        run: Compress-Archive -Path todo-app/target/dist/TodoApp -DestinationPath ${{ matrix.artifact_name }}.zip
+        shell: pwsh
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name}}
-          path: todo-app/target/*${{ matrix.file_extension}}
+          path: ${{ matrix.artifact_name }}.zip
+          if-no-files-found: error
+

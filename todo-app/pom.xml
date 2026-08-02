@@ -112,8 +112,18 @@
 					<appVersion>${project.version}</appVersion>
 					<vendor>itigotti</vendor>
 					<destination>target/dist</destination>
+					<type>app-image</type>
 				</jpackage>
   			</configuration>
+			<executions>
+				<execution>
+					<id>create-app-image</id>
+					<phase>package</phase>
+					<goals>
+						<goal>jpackage</goal>
+					</goals>
+				</execution>
+			</executions>
   		</plugin>
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
