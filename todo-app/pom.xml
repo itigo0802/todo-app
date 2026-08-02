@@ -102,6 +102,17 @@
   			<version>0.0.9</version>
   			<configuration>
   				<mainClass>jp.itigotti.module/jp.itigotti.Main</mainClass>
+				<compress>2</compress>
+				<noHeaderFiles>true</noHeaderFiles>
+				<noManPages>true</noManPages>
+				<launcher>todo-app</launcher>
+				<jpackageImageName>TodoApp</jpackageImageName>
+				<jpackage>
+					<name>TodoApp</name>
+					<appVersion>${project.version}</appVersion>
+					<vendor>itigotti</vendor>
+					<destination>target/dist</destination>
+				</jpackage>
   			</configuration>
   		</plugin>
 		<plugin>
@@ -114,34 +125,6 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.5.5</version>
         </plugin>
-		<plugin>
-			<groupId>org.panteleyev</groupId>
-			<artifactId>jpackage-maven-plugin</artifactId>
-			<version>1.6.0</version>
-			<configuration>
-				<name>TodoApp</name>
-				<appVersion>${project.version}</appVersion>
-				<vendor>itigotti</vendor>
-				<destination>target/dist</destination>
-				<module>jp.itigotti.module/jp.itigotti.Main</module>
-				<javaOptions>
-					<option>-Dfile.encoding=UTF-8</option>
-				</javaOptions>
-				<winMenu>true</winMenu>
-				<winDirChooser>true</winDirChooser>
-				<winShortcut>true</winShortcut>
-				<linuxShortcut>true</linuxShortcut>
-			</configuration>
-			<executions>
-				<execution>
-					<id>jpackage</id>
-					<phase>package</phase>
-					<goals>
-						<goal>jpackage</goal>
-					</goals>
-				</execution>
-			</executions>
-		</plugin>
   	</plugins>
   </build>
 </project>
