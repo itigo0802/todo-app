@@ -124,7 +124,6 @@
 				<vendor>itigotti</vendor>
 				<destination>target/dist</destination>
 				<module>jp.itigotti.module/jp.itigotti.Main</module>
-				<runtimeImage>target/runtime</runtimeImage>
 				<javaOptions>
 					<option>-Dfile.encoding=UTF-8</option>
 				</javaOptions>

@@ -51,12 +51,12 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y xvfb
 
       - name: Build with Maven(Linux)
-        run: xvfb-run -a mvn clean package -P${{ matrix.profile }}
+        run: xvfb-run -a mvn clean test package -P${{ matrix.profile }}
         working-directory: ./todo-app
         if: matrix.os == 'ubuntu-latest'
 
       - name: Build with Maven (Windows/mac)
-        run: mvn clean package -P${{ matrix.profile }}
+        run: mvn clean test package -P${{ matrix.profile }}
         working-directory: ./todo-app
         if: matrix.os != 'ubuntu-latest'
 
