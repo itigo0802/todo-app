@@ -146,4 +146,7 @@ buildNumber.properties
 .history
 .ionide
 
+### sqlite ###
+*.db
+
 # End of https://www.toptal.com/developers/gitignore/api/java,visualstudiocode,linux,eclipse,maven
