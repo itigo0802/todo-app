@@ -139,7 +139,7 @@
 				<module>jp.itigotti.module/jp.itigotti.Main</module>
 				<runtimeImage>${project.build.directory}/TodoApp</runtimeImage>
 				<destination>${project.build.directory}/dist</destination>
-				<type>app-image</type>
+				<type>APP_IMAGE</type>
 			</configuration>
 		</plugin>
 		<plugin>

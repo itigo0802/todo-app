@@ -64,4 +64,3 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: todo-app/target/dist/
           if-no-files-found: error
-
