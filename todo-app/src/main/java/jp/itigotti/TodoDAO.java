@@ -30,6 +30,13 @@ public class TodoDAO {
     }
 
     static {
+        try {
+            Class.forName("org.sqlite.JDBC");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            throw new RuntimeException("SQLite JDBCのロードに失敗しました", e);
+        }
+
         Path portablePath = Paths.get("todo.db").toAbsolutePath();
         Path portableDir = portablePath.getParent();
 
