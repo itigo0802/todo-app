@@ -120,6 +120,29 @@
 			</executions>
   		</plugin>
 		<plugin>
+			<groupId>org.panteleyev</groupId>
+			<artifactId>jpackage-maven-plugin</artifactId>
+			<version>1.6.0</version>
+			<executions>
+				<execution>
+					<id>jpackage</id>
+					<phase>package</phase>
+					<goals>
+						<goal>jpackage</goal>
+					</goals>
+				</execution>
+			</executions>
+			<configuration>
+				<name>TodoApp</name>
+				<appVersion>1.0.0</appVersion>
+				<vendor>jp.itigotti</vendor>
+				<module>jp.itigotti.module/jp.itigotti.Main</module>
+				<runtimeImage>${project.build.directory}/TodoApp</runtimeImage>
+				<destination>${project.build.directory}/dist</destination>
+				<type>app-image</type>
+			</configuration>
+		</plugin>
+		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
 			<version>3.14.1</version>
