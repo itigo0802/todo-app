@@ -33,6 +33,7 @@ public class Main extends Application {
 		Scene scene = new Scene(loader.load());
 		primaryStage.setTitle("Todo App");
 		primaryStage.setScene(scene);
+		scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
 		primaryStage.show();
 	}
 
