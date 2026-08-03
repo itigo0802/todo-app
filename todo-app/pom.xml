@@ -114,7 +114,7 @@
 					<id>create-app-image</id>
 					<phase>package</phase>
 					<goals>
-						<goal>jpackage</goal>
+						<goal>jlink</goal>
 					</goals>
 				</execution>
 			</executions>
