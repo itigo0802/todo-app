@@ -38,6 +38,8 @@ public class Main extends Application {
 	}
 
 	public static void main(String[] args) {
+		System.setProperty("javafx.gtk.version", "2");
+		System.setProperty("javafx.awt.im.style", "on-the-spot");
 		launch();
 	}
 
