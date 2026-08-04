@@ -215,8 +215,6 @@
 				<javaOptions>
 					<option>-Dtodo.app.mode=${app.mode}</option>
 				</javaOptions>
-				<linuxMenuGroup>Office</linuxMenuGroup>
-				<linuxPackageDeps>default-jre | java17-runtime</linuxPackageDeps>
 			</configuration>
 		</plugin>
 		<plugin>
