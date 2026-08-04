@@ -52,22 +52,9 @@ public class TodoDAO {
                 throw new RuntimeException("ホームディレクトリを作成できませんでした", e);
             }
             DB_PATH = homeDir.resolve("todo.db").toString();
-            if(!Files.exists(Paths.get(DB_PATH))) {
-                try {
-                    Files.createFile(Paths.get(DB_PATH));
-                } catch (IOException e) {
-                    throw new RuntimeException("DBファイルを作成できませんでした", e);
-                }
-            }
         } else {
-            DB_PATH = Paths.get("todo.db").toAbsolutePath().toString();
-            if(!Files.exists(Paths.get(DB_PATH))) {
-                try {
-                    Files.createFile(Paths.get(DB_PATH));
-                } catch (IOException e) {
-                    throw new RuntimeException("DBファイルを作成できませんでした", e);
-                }
-            }
+            Path currentDir = Paths.get(".").toAbsolutePath();
+            DB_PATH = currentDir.resolve("todo.db").toString();
         }
         
         DB_URL = "jdbc:sqlite:" + DB_PATH;
