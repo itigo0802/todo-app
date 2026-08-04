@@ -35,13 +35,15 @@
 				<family>unix</family>
 				<name>Linux</name>
 			</os>
+			<activeByDefault>true</activeByDefault>
 			<property>
-				<name>!app.type</name>
+				<name>app.type</name>
+				<value>portable</value>
 			</property>
 		</activation>
 		<properties>
 			<javafx.platform>linux</javafx.platform>
-			<app.mode></app.mode>
+			<app.mode>portable</app.mode>
 			<jpackage.type>APP_IMAGE</jpackage.type>
 		</properties>
 	</profile>
@@ -69,12 +71,13 @@
 				<family>windows</family>
 			</os>
 			<property>
-				<name>!app.type</name>
+				<name>app.type</name>
+				<value>portable</value>
 			</property>
 		</activation>
 		<properties>
 			<javafx.platform>win</javafx.platform>
-			<app.mode></app.mode>
+			<app.mode>portable</app.mode>
 			<jpackage.type>APP_IMAGE</jpackage.type>
 		</properties>
 	</profile>
@@ -102,12 +105,13 @@
 				<family>mac</family>
 			</os>
 			<property>
-				<name>!app.type</name>
+				<name>app.type</name>
+				<value>portable</value>
 			</property>
 		</activation>
 		<properties>
 			<javafx.platform>mac</javafx.platform>
-			<app.mode></app.mode>
+			<app.mode>portable</app.mode>
 			<jpackage.type>APP_IMAGE</jpackage.type>
 		</properties>
 	</profile>
