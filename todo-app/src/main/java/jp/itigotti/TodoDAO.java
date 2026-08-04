@@ -37,14 +37,11 @@ public class TodoDAO {
             throw new RuntimeException("SQLite JDBCのロードに失敗しました", e);
         }
 
-        Path portablePath = Paths.get("todo.db").toAbsolutePath();
-        Path portableDir = portablePath.getParent();
+        String appMode = System.getProperty("todo.app.mode");
 
-        if (portableDir != null && Files.isWritable(portableDir)) {
-            DB_PATH = portablePath.toString();
-        } else {
+        if("installer".equals(appMode)) {
             String userHome = System.getProperty("user.home");
-            if (userHome == null) {
+            if(userHome == null) {
                 throw new RuntimeException("ユーザーホームディレクトリが取得できません");
             }
 
@@ -52,11 +49,14 @@ public class TodoDAO {
             try {
                 Files.createDirectories(homeDir);
             } catch (IOException e) {
-                throw new RuntimeException("データベースディレクトリの作成に失敗しました", e);
+                throw new RuntimeException("ホームディレクトリを作成できませんでした", e);
             }
-
             DB_PATH = homeDir.resolve("todo.db").toString();
+        } else {
+            Path currentDir = Paths.get(".").toAbsolutePath();
+            DB_PATH = currentDir.resolve("todo.db").toString();
         }
+        
         DB_URL = "jdbc:sqlite:" + DB_PATH;
     }
 
