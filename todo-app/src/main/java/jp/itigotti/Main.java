@@ -1,5 +1,7 @@
 package jp.itigotti;
 
+import java.util.Map;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -38,9 +40,6 @@ public class Main extends Application {
 	}
 
 	public static void main(String[] args) {
-		System.setProperty("jdk.gtk.version", "3");
-		System.setProperty("glass.platform", "Gtk");
-		System.setProperty("file.encoding", "UTF-8");
 		launch();
 	}
 
