@@ -20,16 +20,32 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        app_type: [portable, installer]
         include:
           - os: ubuntu-latest
+            app_type: portable
             profile: linux
-            artifact_name: todo-app-linux
+            artifact_name: todo-app-linux-portable
+          - os: ubuntu-latest
+            app_type: installer
+            profile: linux
+            artifact_name: todo-app-linux-installer
           - os: windows-latest
+            app_type: portable
             profile: windows
-            artifact_name: todo-app-windows
+            artifact_name: todo-app-windows-portable
+          - os: windows-latest
+            app_type: installer
+            profile: windows
+            artifact_name: todo-app-windows-installer
           - os: macos-latest
+            app_type: portable
             profile: mac
-            artifact_name: todo-app-macos
+            artifact_name: todo-app-macos-portable
+          - os: macos-latest
+            app_type: installer
+            profile: mac
+            artifact_name: todo-app-macos-installer
 
     runs-on: ${{ matrix.os }}
 
@@ -49,12 +65,12 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y xvfb
 
       - name: Build with Maven(Linux)
-        run: xvfb-run -a mvn clean package -P${{ matrix.profile }}
+        run: xvfb-run -a mvn clean package -Dapp.type=${{ matrix.app_type == 'installer' && 'installer' || '' }}
         working-directory: ./todo-app
         if: matrix.os == 'ubuntu-latest'
 
       - name: Build with Maven (Windows/mac)
-        run: mvn clean package -P${{ matrix.profile }}
+        run: mvn clean package -Dapp.type=${{ matrix.app_type == 'installer' && 'installer' || '' }}
         working-directory: ./todo-app
         if: matrix.os != 'ubuntu-latest'
 

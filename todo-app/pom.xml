@@ -11,37 +11,104 @@
 
   <profiles>
 	<profile>
-		<id>linux</id>
+		<id>linux-installer</id>
 		<activation>
 			<os>
 				<family>unix</family>
 				<name>Linux</name>
 			</os>
+			<property>
+				<name>app.type</name>
+				<value>installer</value>
+			</property>
 		</activation>
 		<properties>
 			<javafx.platform>linux</javafx.platform>
+			<app.mode>installer</app.mode>
+			<jpackage.type>deb</jpackage.type>
 		</properties>
 	</profile>
 	<profile>
-		<id>windows</id>
+		<id>linux-portable</id>
+		<activation>
+			<os>
+				<family>unix</family>
+				<name>Linux</name>
+			</os>
+			<property>
+				<name>!app.type</name>
+			</property>
+		</activation>
+		<properties>
+			<javafx.platform>linux</javafx.platform>
+			<app.mode></app.mode>
+			<jpackage.type>APP_IMAGE</jpackage.type>
+		</properties>
+	</profile>
+	<profile>
+		<id>windows-installer</id>
 		<activation>
 			<os>
 				<family>windows</family>
 			</os>
+			<property>
+				<name>app.type</name>
+				<value>installer</value>
+			</property>
 		</activation>
 		<properties>
 			<javafx.platform>win</javafx.platform>
+			<app.mode>installer</app.mode>
+			<jpackage.type>MSI</jpackage.type>
 		</properties>
 	</profile>
 	<profile>
-		<id>mac</id>
+		<id>windows-portable</id>
+		<activation>
+			<os>
+				<family>windows</family>
+			</os>
+			<property>
+				<name>!app.type</name>
+			</property>
+		</activation>
+		<properties>
+			<javafx.platform>win</javafx.platform>
+			<app.mode></app.mode>
+			<jpackage.type>APP_IMAGE</jpackage.type>
+		</properties>
+	</profile>
+	<profile>
+		<id>mac-installer</id>
 		<activation>
 			<os>
 				<family>mac</family>
 			</os>
+			<property>
+				<name>app.type</name>
+				<value>installer</value>
+			</property>
 		</activation>
 		<properties>
 			<javafx.platform>mac</javafx.platform>
+			<app.mode>installer</app.mode>
+			<jpackage.type>PKG</jpackage.type>
+		</properties>
+	</profile>
+	<profile>
+		<id>mac-portable</id>
+		<activation>
+			<os>
+				<family>mac</family>
+			</os>
+			<property>
+				<name>!app.type</name>
+			</property>
+		</activation>
+		<properties>
+			<javafx.platform>mac</javafx.platform>
+			<app.mode></app.mode>
+			<jpackage.type>APP_IMAGE</jpackage.type>
 		</properties>
 	</profile>
   </profiles>
@@ -140,7 +207,12 @@
 				<module>jp.itigotti.module/jp.itigotti.Main</module>
 				<runtimeImage>${project.build.directory}/TodoApp</runtimeImage>
 				<destination>${project.build.directory}/dist</destination>
-				<type>APP_IMAGE</type>
+				<type>${jpackage.type}</type>
+				<javaOptions>
+					<option>-Dtodo.app.mode=${app.mode}</option>
+				</javaOptions>
+				<linuxMenuGroup>Office</linuxMenuGroup>
+				<linuxPackageDeps>default-jre | java17-runtime</linuxPackageDeps>
 			</configuration>
 		</plugin>
 		<plugin>
