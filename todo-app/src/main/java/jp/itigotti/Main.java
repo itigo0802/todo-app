@@ -1,7 +1,5 @@
 package jp.itigotti;
 
-import java.util.Map;
-
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
