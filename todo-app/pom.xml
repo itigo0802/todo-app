@@ -25,7 +25,7 @@
 		<properties>
 			<javafx.platform>linux</javafx.platform>
 			<app.mode>installer</app.mode>
-			<jpackage.type>deb</jpackage.type>
+			<jpackage.type>DEB</jpackage.type>
 		</properties>
 	</profile>
 	<profile>
