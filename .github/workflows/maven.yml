@@ -24,27 +24,21 @@ jobs:
         include:
           - os: ubuntu-latest
             app_type: portable
-            profile: linux
             artifact_name: todo-app-linux-portable
           - os: ubuntu-latest
             app_type: installer
-            profile: linux
             artifact_name: todo-app-linux-installer
           - os: windows-latest
             app_type: portable
-            profile: windows
             artifact_name: todo-app-windows-portable
           - os: windows-latest
             app_type: installer
-            profile: windows
             artifact_name: todo-app-windows-installer
           - os: macos-latest
             app_type: portable
-            profile: mac
             artifact_name: todo-app-macos-portable
           - os: macos-latest
             app_type: installer
-            profile: mac
             artifact_name: todo-app-macos-installer
 
     runs-on: ${{ matrix.os }}
