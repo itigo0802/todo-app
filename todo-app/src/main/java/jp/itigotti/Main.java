@@ -1,8 +1,5 @@
 package jp.itigotti;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -14,6 +11,12 @@ public class Main extends Application {
 	@Override
 	public void init() throws Exception {
 		super.init();
+
+		String appMode = System.getProperty("todo.app.mode");
+		if("installer".equals(appMode)) {
+			String logDir = System.getProperty("user.home") + "/.todo-app/logs";
+			System.setProperty("todo.log.dir", logDir);
+		}
 
 		dao = new TodoDAO();
 		dao.initializeDB();
