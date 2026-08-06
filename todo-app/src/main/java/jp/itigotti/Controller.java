@@ -3,6 +3,9 @@ package jp.itigotti;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DatePicker;
@@ -30,6 +33,7 @@ public class Controller {
 	private TodoListLogic logic;
 
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+	private static final Logger log = LoggerFactory.getLogger(Controller.class);
 
 	public Controller(TodoDAO dao) {
 		this.logic = new TodoListLogic(dao);
@@ -69,6 +73,8 @@ public class Controller {
 			taskInput.clear();
 			expirationDatePicker.setValue(null);
 		} catch (IllegalArgumentException e) {
+			log.debug("入力バリデーションエラー message={}", e.getMessage());
+
 			var alert = new Alert(AlertType.ERROR);
 			alert.setTitle("入力エラー");
 			alert.setHeaderText(null);
