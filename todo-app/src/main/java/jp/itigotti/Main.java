@@ -1,5 +1,8 @@
 package jp.itigotti;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -7,10 +10,17 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 	private TodoDAO dao;
+	private static final Logger log = LoggerFactory.getLogger(Main.class);
 
 	@Override
 	public void init() throws Exception {
 		super.init();
+
+		String appMode = System.getProperty("todo.app.mode");
+		if("installer".equals(appMode)) {
+			String logDir = System.getProperty("user.home") + "/.todo-app/logs";
+			System.setProperty("todo.log.dir", logDir);
+		}
 
 		dao = new TodoDAO();
 		dao.initializeDB();
@@ -26,6 +36,7 @@ public class Main extends Application {
 			try {
 				return clazz.getDeclaredConstructor().newInstance();
 			} catch (Exception e) {
+				log.error("コントローラーの初期化に失敗しました clazz={}", clazz.getName(), e);
 				throw new RuntimeException(e);
 			}
 		});

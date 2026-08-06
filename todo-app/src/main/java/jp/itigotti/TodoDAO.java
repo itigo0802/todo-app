@@ -12,6 +12,10 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +24,7 @@ public class TodoDAO {
     private static final String DB_URL;
     private static final String DB_PATH;
     private final String dbUrl;
+    private static final Logger log = LoggerFactory.getLogger(TodoDAO.class);
 
     public TodoDAO() {
         this.dbUrl = DB_URL;
@@ -33,7 +38,7 @@ public class TodoDAO {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            log.error("SQLite JDBCドライバのロードに失敗しました driverClass={}", "org.sqlite.JDBC", e);
             throw new RuntimeException("SQLite JDBCのロードに失敗しました", e);
         }
 
@@ -72,7 +77,7 @@ public class TodoDAO {
                 pStmt.executeUpdate();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("DBの初期化に失敗しました dbUrl={}, SQLState={}", dbUrl, e.getSQLState(), e);
             throw new RuntimeException("DBの初期化に失敗しました", e);
         }
     }
@@ -95,8 +100,8 @@ public class TodoDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("DBの読み込みに失敗しました", e);
+            log.error("Todo一覧の取得に失敗しました dbUrl={}, SQLState={}", dbUrl, e.getSQLState(), e);
+            throw new RuntimeException("Todo一覧の取得に失敗しました", e);
         }
         return todoList;
     }
@@ -130,8 +135,8 @@ public class TodoDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("DBへの登録に失敗しました", e);
+            log.error("Todoの登録に失敗しました task={}, expirationDate={}, SQLState={}", StringUtil.truncateForLog(item.getTask()), item.getExpirationDate(), e.getSQLState(), e);
+            throw new RuntimeException("Todoの登録に失敗しました", e);
         }
     }
 
@@ -159,7 +164,7 @@ public class TodoDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Todoの更新に失敗しました id={}, task={}, completed={}, SQLState={}", item.getId(), StringUtil.truncateForLog(item.getTask()), item.isCompleted(), e.getSQLState(), e);
             throw new RuntimeException("DBへの更新に失敗しました", e);
         }
     }
@@ -174,7 +179,7 @@ public class TodoDAO {
                 return pStmt.executeUpdate() == 1;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Todoの削除に失敗しました id={}, SQLState={}", item.getId(), e.getSQLState(), e);
             throw new RuntimeException("DBへの削除に失敗しました", e);
         }
     }

@@ -3,11 +3,15 @@ package jp.itigotti;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.collections.ObservableList;
 
 public class TodoListLogic {
 	private final ObservableList<TodoItemModel> todoItems = javafx.collections.FXCollections.observableArrayList();
 	private final TodoDAO dao;
+	private static final Logger log = LoggerFactory.getLogger(TodoListLogic.class);
 
 	public TodoListLogic(TodoDAO dao) {
 		this.dao = dao;
@@ -34,6 +38,8 @@ public class TodoListLogic {
 		if(dao.create(item) != null) {
 			setupItemListener(item);
 			todoItems.add(item);
+		} else {
+			log.warn("Todoの登録がDBに反映されませんでした task={}, expirationDate={}", StringUtil.truncateForLog(task), expirationDate);
 		}
 	}
 	
@@ -41,6 +47,8 @@ public class TodoListLogic {
 	public void removeTodoItem(TodoItemModel item) {
 		if(dao.delete(item)) {
 			todoItems.remove(item);
+		} else {
+			log.warn("Todoの削除がDBに反映されませんでした id={}", item.getId());
 		}
 	}
 
@@ -56,7 +64,11 @@ public class TodoListLogic {
 			return;
 		}
 		item.completedProperty().addListener((obs, oldVal, newVal) -> {
-			dao.update(item);
+			try {
+				dao.update(item);
+			} catch(RuntimeException e) {
+				log.error("完了状態の更新に失敗しました id={}", item.getId(), e);
+			}
 		});
 		item.setListenerInstalled(true);
 	}
