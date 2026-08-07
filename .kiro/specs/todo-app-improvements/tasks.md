@@ -9,34 +9,34 @@
 
 ## Tasks
 
-- [ ] 1. pom.xml とモジュール定義の修正
-  - [ ] 1.1 `pom.xml` の JUnit Jupiter バージョンを `5.11.4` に変更し、HikariCP 依存 (`com.zaxxer:HikariCP:6.3.0`) を `compile` スコープで追加する
+- [x] 1. pom.xml とモジュール定義の修正
+  - [x] 1.1 `pom.xml` の JUnit Jupiter バージョンを `5.11.4` に変更し、HikariCP 依存 (`com.zaxxer:HikariCP:6.3.0`) を `compile` スコープで追加する
     - `junit-jupiter` の `<version>6.0.3</version>` を `<version>5.11.4</version>` へ書き換える
     - `<dependency>` ブロックに `com.zaxxer:HikariCP:6.3.0` (compile scope) を追加する
     - _Requirements: 3.1, 3.3, 7.1_
-  - [ ] 1.2 `module-info.java` のモジュール名を `jp.itigotti` に変更し、HikariCP モジュールを requires に追加する
+  - [x] 1.2 `module-info.java` のモジュール名を `jp.itigotti` に変更し、HikariCP モジュールを requires に追加する
     - `module jp.itigotti.module` を `module jp.itigotti` に書き換える
     - `requires com.zaxxer.hikari;` を追加する
     - _Requirements: 9.1_
-  - [ ] 1.3 `pom.xml` の javafx-maven-plugin `<mainClass>` および jpackage-maven-plugin `<module>` を `jp.itigotti/jp.itigotti.Main` に更新する
+  - [x] 1.3 `pom.xml` の javafx-maven-plugin `<mainClass>` および jpackage-maven-plugin `<module>` を `jp.itigotti/jp.itigotti.Main` に更新する
     - _Requirements: 9.2, 9.3_
 
-- [ ] 2. TodoDAO — HikariCP 移行・ResultSet 修正・スキーマ修正
-  - [ ] 2.1 `TodoDAO` に `HikariDataSource` フィールドを追加し、コンストラクタ `()` と `(String customDbUrl)` でそれぞれプールを初期化する。`DriverManager.getConnection()` をすべて `dataSource.getConnection()` に置き換え、`AutoCloseable` を実装する
+- [x] 2. TodoDAO — HikariCP 移行・ResultSet 修正・スキーマ修正
+  - [x] 2.1 `TodoDAO` に `HikariDataSource` フィールドを追加し、コンストラクタ `()` と `(String customDbUrl)` でそれぞれプールを初期化する。`DriverManager.getConnection()` をすべて `dataSource.getConnection()` に置き換え、`AutoCloseable` を実装する
     - `HikariConfig` を生成して `jdbcUrl`・`driverClassName` を設定し `HikariDataSource` を生成する
     - 全 CRUD メソッドの try-with-resources の接続取得を `dataSource.getConnection()` に変更する
     - `close()` メソッドを追加して `dataSource.close()` を呼ぶ
     - _Requirements: 7.2, 7.3, 7.4, 7.5_
-  - [ ] 2.2 `initializeDB()` のスキーマを `expiration_date NOT NULL` 制約付きに変更し、既存 NULL 行を当日付で補完するマイグレーション処理を追加する
+  - [x] 2.2 `initializeDB()` のスキーマを `expiration_date NOT NULL` 制約付きに変更し、既存 NULL 行を当日付で補完するマイグレーション処理を追加する
     - `CREATE TABLE IF NOT EXISTS` の `expiration_date` カラムを `DATE NOT NULL` に変更する
     - テーブル作成後、`expiration_date IS NULL` の行を検出して `LocalDate.now()` で UPDATE するマイグレーションを追加する
     - _Requirements: 4.1, 4.2, 4.3_
-  - [ ] 2.3 `create()` で `expiration_date` が null の場合に `IllegalArgumentException` をスローするガードを追加し、`findAll()` および `create()` の ResultSet を try-with-resources でクローズする
+  - [x] 2.3 `create()` で `expiration_date` が null の場合に `IllegalArgumentException` をスローするガードを追加し、`findAll()` および `create()` の ResultSet を try-with-resources でクローズする
     - `item.getExpirationDate() == null` の場合に `throw new IllegalArgumentException(...)` を追加する
     - `findAll()` の `ResultSet rs = pStmt.executeQuery()` を try-with-resources に変換する
     - `create()` の `ResultSet rs = pStmt.getGeneratedKeys()` を try-with-resources に変換する
     - _Requirements: 1.1, 1.2, 1.3, 4.4_
-  - [ ]* 2.4 `TodoDAOTest` に `update()` の正常系・`delete()` の正常系・`create()` に null 期限日を渡した異常系の単体テストを追加する
+  - [x]* 2.4 `TodoDAOTest` に `update()` の正常系・`delete()` の正常系・`create()` に null 期限日を渡した異常系の単体テストを追加する
     - `testUpdate_既存レコードを上書きできる()`: create 後に task・expirationDate・completed を変更して update し、findAll で値が更新されていることを検証する
     - `testDelete_指定IDが削除される()`: create 後に delete し、findAll の結果に含まれないことを検証する
     - `testCreate_expirationDateがnullの場合IllegalArgumentException()`: null 期限日で create し例外がスローされることを検証する
@@ -61,14 +61,14 @@
 - [ ] 3. チェックポイント — データ層テストの確認
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 4. TodoItemModel — hasCompletedListener の除去
-  - [ ] 4.1 `TodoItemModel` から `hasCompletedListener` フィールド、`isListenerInstalled()` メソッド、`setListenerInstalled()` メソッドを削除する
+- [x] 4. TodoItemModel — hasCompletedListener の除去
+  - [x] 4.1 `TodoItemModel` から `hasCompletedListener` フィールド、`isListenerInstalled()` メソッド、`setListenerInstalled()` メソッドを削除する
     - フィールド宣言 `private boolean hasCompletedListener = false;` を削除する
     - `isListenerInstalled()` と `setListenerInstalled()` メソッドを削除する
     - _Requirements: 8.1_
 
-- [ ] 5. TodoListLogic — ListenerRegistry の導入
-  - [ ] 5.1 `TodoListLogic` に `Set<Integer>` 型の `listenerRegistry` フィールドを追加し、`setupItemListener()` で `listenerRegistry.contains(item.getId())` による重複チェックを実装する
+- [x] 5. TodoListLogic — ListenerRegistry の導入
+  - [x] 5.1 `TodoListLogic` に `Set<Integer>` 型の `listenerRegistry` フィールドを追加し、`setupItemListener()` で `listenerRegistry.contains(item.getId())` による重複チェックを実装する
     - `private final Set<Integer> listenerRegistry = new HashSet<>();` を追加する
     - `setupItemListener()` 内の `item.isListenerInstalled()` の参照を `listenerRegistry.contains(item.getId())` に置き換え、登録後は `listenerRegistry.add(item.getId())` を呼ぶ
     - `item.setListenerInstalled(true)` の呼び出しを削除する
@@ -87,16 +87,16 @@
     - **Validates: Requirements 8.2, 8.3, 8.4**
     - `refresh()` を N 回呼び出した後、同一アイテムの completed を 1 回トグルしたとき `TodoDAO.update()` がちょうど 1 回呼ばれることを Mockito でスパイして検証する
 
-- [ ] 6. Controller — 削除未選択時の警告ダイアログ追加
-  - [ ] 6.1 `Controller.handleDeleteAction()` に選択アイテムが null の場合 `AlertType.WARNING` ダイアログを表示するコードを追加する
+- [x] 6. Controller — 削除未選択時の警告ダイアログ追加
+  - [x] 6.1 `Controller.handleDeleteAction()` に選択アイテムが null の場合 `AlertType.WARNING` ダイアログを表示するコードを追加する
     - `if (selected != null)` の `else` ブランチを追加し、`Alert` を生成してタイトル `"削除エラー"`、ヘッダ null、コンテンツテキストにタスク選択を促すメッセージを設定する
     - _Requirements: 5.1, 5.2, 5.3_
   - [ ]* 6.2 `ControllerTest` を新規作成し、`handleDeleteAction()` で選択なし時に WARNING ダイアログが表示されることを TestFX で検証するテストを追加する
     - TestFX でアプリを起動し、何も選択せずに削除ボタンをクリックしたとき `AlertType.WARNING` のダイアログが表示されることを検証する
     - _Requirements: 6.1_
 
-- [ ] 7. MainTest の本番 DB 分離
-  - [ ] 7.1 `MainTest` を修正し、`@TempDir` で生成した一時ディレクトリに TestDAO を生成して `Main.start(Stage)` にコンストラクタインジェクションで渡すよう変更する
+- [x] 7. MainTest の本番 DB 分離
+  - [x] 7.1 `MainTest` を修正し、`@TempDir` で生成した一時ディレクトリに TestDAO を生成して `Main.start(Stage)` にコンストラクタインジェクションで渡すよう変更する
     - `Main.init()` の直接呼び出しを除去する
     - `TodoDAO dao = new TodoDAO(tempDbUrl)` を生成し `Main` コンストラクタまたは setter で渡す形に変更する（`Main` クラスへの対応する変更も含む）
     - _Requirements: 2.1, 2.2, 2.3_
