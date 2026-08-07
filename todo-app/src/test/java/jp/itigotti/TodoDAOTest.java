@@ -3,6 +3,7 @@ package jp.itigotti;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
@@ -110,4 +111,45 @@ public class TodoDAOTest {
         assertItemEquals(item, result.get(0));
     }
 
+    @Test
+    void testUpdate_TODO項目を更新する() {
+        TodoItemModel item = new TodoItemModel();
+        item.setTask("テストタスク");
+        item.setExpirationDate(LocalDate.now());
+        TodoItemModel createdItem = dao.create(item);
+
+        createdItem.setTask("更新されたタスク");
+        createdItem.setExpirationDate(LocalDate.now().plusDays(1));
+        createdItem.setCompleted(true);
+        TodoItemModel result = dao.update(createdItem);
+
+        List<TodoItemModel> allItems = dao.findAll();
+        assertItemEquals(createdItem, result);
+        assertItemEquals(createdItem, allItems.get(0));
+        assertEquals(1, allItems.size(), "TODO項目の数が一致しません");
+    }
+
+    @Test
+    void testDelete_TODO項目を削除する() {
+        TodoItemModel item = new TodoItemModel();
+        item.setTask("テストタスク");
+        item.setExpirationDate(LocalDate.now());
+        TodoItemModel createdItem = dao.create(item);
+
+        dao.delete(createdItem);
+        List<TodoItemModel> allItems = dao.findAll();
+
+        assertTrue(allItems.isEmpty(), "TODO項目が削除されていません");
+    }
+
+    @Test
+    void testCreate_expirationDateがnullの場合IllegalArgumentException() {
+        TodoItemModel item = new TodoItemModel();
+        item.setTask("テストタスク");
+        // expirationDateをnullに設定
+        item.setExpirationDate(null);
+
+        assertThrows(IllegalArgumentException.class, () -> dao.create(item),
+    "expirationDateがnullの場合はIllegalArgmentExceptionがスローされるべき");
+    }
 }
