@@ -46,7 +46,7 @@ mvn clean package -Dapp.type=installer
 - macOS: `.pkg` インストーラー（macOS 環境でのみビルド可能）
 
 > **Linux でのテスト実行について**  
-> ヘッドレス環境では `xvfb-run -a mvn clean package` を使用してください。
+> ヘッドレス環境では `xvfb-run -a mvn clean package` を使用してください。テストのみ実行する場合は `xvfb-run -a mvn test` を使用してください。
 
 ## 実行方法
 
@@ -79,7 +79,7 @@ jp.itigotti
 ├── Controller.java     # UI イベントハンドラ（JavaFX FXML コントローラー）
 ├── TodoListLogic.java  # ビジネスロジック（追加・削除・更新）
 ├── TodoItemModel.java  # データモデル（JavaFX プロパティ）
-├── TodoDAO.java        # SQLite アクセス（CRUD）
+├── TodoDAO.java        # SQLite アクセス（CRUD）、HikariCP接続プール管理
 └── StringUtil.java     # ユーティリティ
 ```
 
@@ -91,7 +91,8 @@ jp.itigotti
 | sqlite-jdbc | 3.53.2.1 | SQLite ドライバ |
 | SLF4J     | 2.0.18   | ロギング API |
 | Logback   | 1.6.1    | ロギング実装 |
-| JUnit Jupiter | 6.0.3 | テスト |
+| JUnit Jupiter | 5.11.4 | テスト |
+| HikariCP  | 6.3.0    | DB接続プール |
 | Mockito   | 5.21.0   | モック |
 | TestFX    | 4.0.18   | JavaFX UI テスト |
 | AssertJ   | 3.25.3   | アサーション |
