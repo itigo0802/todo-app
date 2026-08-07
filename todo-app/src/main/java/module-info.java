@@ -1,4 +1,4 @@
-module jp.itigotti.module {
+module jp.itigotti {
     requires javafx.controls;
     requires javafx.fxml;
     requires transitive javafx.base;
@@ -7,6 +7,7 @@ module jp.itigotti.module {
     requires org.xerial.sqlitejdbc;
     requires org.slf4j;
     requires ch.qos.logback.classic;
+    requires com.zaxxer.hikari;
 
     opens jp.itigotti to javafx.fxml;
 

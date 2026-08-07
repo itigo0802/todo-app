@@ -1,7 +1,9 @@
 package jp.itigotti;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,7 @@ public class TodoListLogic {
 	private final ObservableList<TodoItemModel> todoItems = javafx.collections.FXCollections.observableArrayList();
 	private final TodoDAO dao;
 	private static final Logger log = LoggerFactory.getLogger(TodoListLogic.class);
+	private final Set<Integer> listenerRegistry = new HashSet<>();
 
 	public TodoListLogic(TodoDAO dao) {
 		this.dao = dao;
@@ -60,7 +63,7 @@ public class TodoListLogic {
 	}
 
 	private void setupItemListener(TodoItemModel item) {
-		if (item.isListenerInstalled()) {
+		if (listenerRegistry.contains(item.getId())) {
 			return;
 		}
 		item.completedProperty().addListener((obs, oldVal, newVal) -> {
@@ -70,7 +73,7 @@ public class TodoListLogic {
 				log.error("完了状態の更新に失敗しました id={}", item.getId(), e);
 			}
 		});
-		item.setListenerInstalled(true);
+		listenerRegistry.add(item.getId());
 	}
 }
 

@@ -88,6 +88,12 @@ public class Controller {
 		TodoItemModel selected = todoListView.getSelectionModel().getSelectedItem();
 		if (selected != null) {
 			logic.removeTodoItem(selected);
+		} else {
+			var alert = new Alert(AlertType.ERROR);
+			alert.setTitle("削除エラー");
+			alert.setHeaderText(null);
+			alert.setContentText("削除するTodoを選択してください");
+			alert.showAndWait();
 		}
 	}
 }

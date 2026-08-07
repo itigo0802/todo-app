@@ -138,7 +138,7 @@
 	<dependency>
     	<groupId>org.junit.jupiter</groupId>
     	<artifactId>junit-jupiter</artifactId>
-    	<version>6.0.3</version>
+    	<version>5.11.4</version>
     	<scope>test</scope>
 	</dependency>
 	<dependency>
@@ -177,6 +177,12 @@
     	<version>1.6.1</version>
     	<scope>compile</scope>
 	</dependency>
+	<dependency>
+    	<groupId>com.zaxxer</groupId>
+    	<artifactId>HikariCP</artifactId>
+    	<version>6.3.0</version>
+    	<scope>compile</scope>
+	</dependency>
   </dependencies>
   <build>
   	<plugins>
@@ -185,7 +191,7 @@
   			<artifactId>javafx-maven-plugin</artifactId>
   			<version>0.0.8</version>
   			<configuration>
-  				<mainClass>jp.itigotti.module/jp.itigotti.Main</mainClass>
+  				<mainClass>jp.itigotti/jp.itigotti.Main</mainClass>
 				<compress>2</compress>
 				<noHeaderFiles>true</noHeaderFiles>
 				<noManPages>true</noManPages>
@@ -220,7 +226,7 @@
 				<name>TodoApp</name>
 				<appVersion>1.0.0</appVersion>
 				<vendor>jp.itigotti</vendor>
-				<module>jp.itigotti.module/jp.itigotti.Main</module>
+				<module>jp.itigotti/jp.itigotti.Main</module>
 				<runtimeImage>${project.build.directory}/TodoApp</runtimeImage>
 				<destination>${project.build.directory}/dist</destination>
 				<type>${jpackage.type}</type>

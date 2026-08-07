@@ -12,18 +12,24 @@ public class Main extends Application {
 	private TodoDAO dao;
 	private static final Logger log = LoggerFactory.getLogger(Main.class);
 
+	public void setDao(TodoDAO dao) {
+		this.dao = dao;
+	}
+
 	@Override
 	public void init() throws Exception {
 		super.init();
 
-		String appMode = System.getProperty("todo.app.mode");
-		if("installer".equals(appMode)) {
-			String logDir = System.getProperty("user.home") + "/.todo-app/logs";
-			System.setProperty("todo.log.dir", logDir);
-		}
+		if(dao == null) {
+			String appMode = System.getProperty("todo.app.mode");
+			if("installer".equals(appMode)) {
+				String logDir = System.getProperty("user.home") + "/.todo-app/logs";
+				System.setProperty("todo.log.dir", logDir);
+			}
 
-		dao = new TodoDAO();
-		dao.initializeDB();
+			dao = new TodoDAO();
+			dao.initializeDB();
+		}
 	}
 
 	@Override
