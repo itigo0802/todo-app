@@ -36,11 +36,15 @@ public class TodoDAOTest {
     }
 
     @AfterEach
-    void tearDown() throws SQLException {
-        try(Connection conn = DriverManager.getConnection(testDbUrl)) {
+    void tearDown() throws Exception {
+        try (Connection conn = DriverManager.getConnection(testDbUrl)) {
             conn.createStatement().execute("DROP TABLE IF EXISTS todo_items");
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             System.err.println("テーブル削除時にエラーが発生しました: " + e.getMessage());
+        } finally {
+            if (dao != null) {
+                dao.close();
+            }
         }
     }
 

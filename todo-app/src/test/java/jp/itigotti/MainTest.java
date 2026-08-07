@@ -1,5 +1,6 @@
 package jp.itigotti;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.testfx.framework.junit5.ApplicationTest;
@@ -14,17 +15,26 @@ public class MainTest extends ApplicationTest {
 
     @TempDir
     Path tempDir;
+
+    private TodoDAO testDao;
     
     @Override
     public void start(Stage stage) throws Exception {
         String tempDbUrl = "jdbc:sqlite:" + tempDir.resolve("test.db").toString();
 
-        TodoDAO testDao = new TodoDAO(tempDbUrl);
+        testDao = new TodoDAO(tempDbUrl);
         testDao.initializeDB();
 
         Main main = new Main();
         main.setDao(testDao);
         main.start(stage);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        if (testDao != null) {
+            testDao.close();
+        }
     }
 
     @Test

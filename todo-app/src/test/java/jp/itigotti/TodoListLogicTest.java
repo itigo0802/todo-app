@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.nio.file.Path;
 import java.time.LocalDate;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -14,15 +15,23 @@ public class TodoListLogicTest {
     @TempDir
     Path tempDir;
 
+    private TodoDAO dao;
+
     private TodoDAO createTestDAO() {
         Path testDbPath = tempDir.resolve("test.db");
         String testDbUrl = "jdbc:sqlite:" + testDbPath.toString();
-
-        TodoDAO dao = new TodoDAO(testDbUrl);
+        dao = new TodoDAO(testDbUrl);
         dao.initializeDB();
         return dao;
     }
-    
+
+    @AfterEach
+    void tearDown() throws Exception {
+        if (dao != null) {
+            dao.close();
+        }
+    }
+
     @Test
     void addTodoItem_追加できる() {
         TodoDAO dao = createTestDAO();
