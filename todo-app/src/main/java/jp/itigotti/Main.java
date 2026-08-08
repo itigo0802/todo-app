@@ -58,4 +58,16 @@ public class Main extends Application {
 		launch();
 	}
 
+	@Override
+	public void stop() throws Exception {
+		super.stop();
+		if(dao != null) {
+			try {
+				dao.close();
+			} catch(Exception e) {
+				log.error("DBコネクションのクローズに失敗しました", e);
+			}
+		}
+	}
+
 }
