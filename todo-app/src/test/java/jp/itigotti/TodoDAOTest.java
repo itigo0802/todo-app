@@ -17,6 +17,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class TodoDAOTest {
 
@@ -155,5 +157,55 @@ public class TodoDAOTest {
 
         assertThrows(IllegalArgumentException.class, () -> dao.create(item),
     "expirationDateがnullの場合はIllegalArgumentExceptionがスローされるべき");
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 3, 10})
+    void testInitializeDB_nullExpirationDateが補完される(int nullRowCount) throws Exception {
+        Path paramPath = tempDir.resolve("param_test_" + nullRowCount + ".db");
+        String paramDbUrl = "jdbc:sqlite:" + paramPath.toString();
+
+        try (Connection conn = DriverManager.getConnection(paramDbUrl)) {
+            conn.createStatement().execute(
+                "create table if not exists todo_items (" +
+                "id integer primary key autoincrement, " +
+                "task text not null, " +
+                "expiration_date date, " +
+                "is_completed boolean not null default false)"
+            );
+            for (int i = 0; i < nullRowCount; i++) {
+                conn.createStatement().execute(
+                    "insert into todo_items (task, expiration_date, is_completed) " +
+                    "values ('タスク" + i + "', null, false)"
+                );
+            }
+        }
+
+        try (TodoDAO paramDao = new TodoDAO(paramDbUrl)) {
+            paramDao.initializeDB();
+
+            List<TodoItemModel> items = paramDao.findAll();
+            assertEquals(nullRowCount, items.size(), "アイテム数が一致しない");
+            for (TodoItemModel item : items) {
+                assertNotNull(item.getExpirationDate(), "expirationDateがnullのままです id=" + item.getId());
+            }
+        }
+    }
+
+    @ParameterizedTest(name = "タスク文字列=\"{0}\"のときnull期限日でcreateが拒否される")
+    @ValueSource(strings = {
+        "普通のタスク",
+        "a",
+        "あいうえお",
+        "!@#$%^&*()",
+        "非常に長いタスク名前前前前前前前前前前前前前前前前前"
+    })
+    void testCreate_どんなタスク文字列でもnull期限日は拒否される(String task) {
+        TodoItemModel item = new TodoItemModel();
+        item.setTask(task);
+        item.setExpirationDate(null);
+
+        assertThrows(IllegalArgumentException.class, () -> dao.create(item),
+            "タスク=\"" + task + "\" でもnull期限日はIllegalArgumentExceptionがスローされるべき");
     }
 }

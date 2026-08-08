@@ -1,6 +1,7 @@
 package jp.itigotti;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
@@ -94,5 +95,15 @@ public class TodoListLogicTest {
 
         assertEquals(1, logic.getTodoItems().size());
         assertTrue(logic.getTodoItems().get(0).isCompleted());
+    }
+
+    @Test
+    void addTodoItem_expirationDateがnullの場合IllegalArgumentException() {
+        TodoDAO dao = createTestDAO();
+        String task = "テストタスク";
+        
+        assertThrows(IllegalArgumentException.class, () -> {
+            new TodoListLogic(dao).addTodoItem(task, null);
+        });
     }
 }
