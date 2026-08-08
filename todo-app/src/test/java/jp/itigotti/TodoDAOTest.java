@@ -208,6 +208,4 @@ public class TodoDAOTest {
         assertThrows(IllegalArgumentException.class, () -> dao.create(item),
             "タスク=\"" + task + "\" でもnull期限日はIllegalArgumentExceptionがスローされるべき");
     }
-
-    
 }
