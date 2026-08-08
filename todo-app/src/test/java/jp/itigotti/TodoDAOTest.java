@@ -154,6 +154,6 @@ public class TodoDAOTest {
         item.setExpirationDate(null);
 
         assertThrows(IllegalArgumentException.class, () -> dao.create(item),
-    "expirationDateがnullの場合はIllegalArgmentExceptionがスローされるべき");
+    "expirationDateがnullの場合はIllegalArgumentExceptionがスローされるべき");
     }
 }
