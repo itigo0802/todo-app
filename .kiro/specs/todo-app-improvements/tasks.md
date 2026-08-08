@@ -41,11 +41,11 @@
     - `testDelete_指定IDが削除される()`: create 後に delete し、findAll の結果に含まれないことを検証する
     - `testCreate_expirationDateがnullの場合IllegalArgumentException()`: null 期限日で create し例外がスローされることを検証する
     - _Requirements: 6.3, 6.4, 6.5_
-  - [ ]* 2.5 Property 1（NULL 期限日マイグレーション後の完全性）のプロパティテストを `TodoDAOTest` に追加する
+  - [x]* 2.5 Property 1（NULL 期限日マイグレーション後の完全性）のプロパティテストを `TodoDAOTest` に追加する
     - **Property 1: NULL 期限日マイグレーション後の完全性**
     - **Validates: Requirements 4.2**
     - jqwik (`net.jqwik:jqwik`) または単純なパラメータ化テストで、0〜N 件の NULL 行を持つ既存テーブルに `initializeDB()` を呼び出した後、`findAll()` が返す全アイテムの `expirationDate` が非 null であることを検証する
-  - [ ]* 2.6 Property 2（null 期限日での create() は必ず拒否）のプロパティテストを `TodoDAOTest` に追加する
+  - [x]* 2.6 Property 2（null 期限日での create() は必ず拒否）のプロパティテストを `TodoDAOTest` に追加する
     - **Property 2: null 期限日での create() は必ず拒否**
     - **Validates: Requirements 4.4**
     - 任意の有効なタスク文字列と null 期限日の組み合わせで `create()` が `IllegalArgumentException` をスローすることを検証する
