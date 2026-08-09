@@ -3,6 +3,7 @@ package jp.itigotti;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import javafx.collections.ObservableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,26 @@ public class Controller {
 
 	public Controller(TodoDAO dao) {
 		this.logic = new TodoListLogic(dao);
+	}
+
+	public ObservableList<TodoItemModel> getTodoItems() {
+		return logic.getTodoItems();
+	}
+
+	public TodoListLogic getLogic() {
+		return logic;
+	}
+
+	public TextField getTaskInput() {
+		return taskInput;
+	}
+
+	public DatePicker getExpirationDatePicker() {
+		return expirationDatePicker;
+	}
+
+	public TableView<TodoItemModel> getTodoListView() {
+		return todoListView;
 	}
 
 	@FXML
