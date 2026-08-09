@@ -2,6 +2,7 @@ package jp.itigotti;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import javafx.collections.ObservableList;
 import org.slf4j.Logger;
@@ -33,6 +34,10 @@ public class Controller {
 
 	private final TodoListLogic logic;
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+	private static final DateTimeFormatter[] INPUT_FORMATTERS = {
+			DateTimeFormatter.ISO_LOCAL_DATE,
+			DateTimeFormatter.ofPattern("yyyy/MM/dd"),
+	};
 	private static final Logger log = LoggerFactory.getLogger(Controller.class);
 
 	public Controller(TodoDAO dao) {
@@ -89,9 +94,11 @@ public class Controller {
 	@FXML
 	private void handleAddAction() {
 		try {
-			logic.addTodoItem(taskInput.getText(), expirationDatePicker.getValue());
+			LocalDate expirationDate = resolveExpirationDate();
+			logic.addTodoItem(taskInput.getText(), expirationDate);
 			taskInput.clear();
 			expirationDatePicker.setValue(null);
+			expirationDatePicker.getEditor().clear();
 		} catch (IllegalArgumentException e) {
 			log.debug("入力バリデーションエラー message={}", e.getMessage());
 
@@ -101,6 +108,26 @@ public class Controller {
 			alert.setContentText(e.getMessage());
 			alert.showAndWait();
 		}
+	}
+
+	private LocalDate resolveExpirationDate() {
+		LocalDate selectedDate = expirationDatePicker.getValue();
+		if(selectedDate != null) {
+			return selectedDate;
+		}
+
+		String text =expirationDatePicker.getEditor().getText();
+		for (DateTimeFormatter formatter : INPUT_FORMATTERS) {
+			try {
+				LocalDate parsedDate = LocalDate.parse(text, formatter);
+				expirationDatePicker.setValue(parsedDate);
+				return parsedDate;
+			} catch (DateTimeParseException e) {
+				// 次のフォーマットを試す
+			}
+		}
+
+		throw new IllegalArgumentException("期限の形式が正しくありません。yyyy-MM-dd または yyyy/MM/dd で入力してください");
 	}
 
 	@FXML
