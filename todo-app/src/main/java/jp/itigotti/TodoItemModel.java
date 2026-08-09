@@ -52,4 +52,21 @@ public class TodoItemModel {
         return completed;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        TodoItemModel that = (TodoItemModel) obj;
+
+        if(getId() == 0 || that.getId() == 0) {
+            return this == that;
+        }
+        return getId() == that.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return getId() == 0 ? System.identityHashCode(this) : Integer.hashCode(getId());
+    }
+
 }
