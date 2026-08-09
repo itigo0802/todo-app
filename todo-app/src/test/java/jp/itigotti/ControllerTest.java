@@ -31,7 +31,7 @@ public class ControllerTest extends ApplicationTest {
     @Start
     public void start(Stage stage) throws Exception {
         Path testDbPath = tempDir.resolve("test.db");
-        String testDbUrl = "jdbc:sqlite:" + testDbPath.toAbsolutePath().toString();
+        String testDbUrl = "jdbc:sqlite:" + testDbPath.toAbsolutePath();
         dao = new TodoDAO(testDbUrl);
         dao.initializeDB();
 
