@@ -31,8 +31,7 @@ public class Controller {
 	@FXML
 	private TableColumn<TodoItemModel, Boolean> isCompletedColumn;
 
-	private TodoListLogic logic;
-
+	private final TodoListLogic logic;
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 	private static final Logger log = LoggerFactory.getLogger(Controller.class);
 
