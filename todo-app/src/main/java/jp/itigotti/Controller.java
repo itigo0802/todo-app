@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import javafx.collections.ObservableList;
+import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,6 +90,31 @@ public class Controller {
 		isCompletedColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
 		isCompletedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isCompletedColumn));
 		isCompletedColumn.setEditable(true);
+
+		// DatePicker はデフォルトだと、フォーカスが外れた瞬間にロケール依存の書式
+		// （例: M/d/yy）でエディタの文字列をパースしようとし、失敗すると入力内容を
+		// 空文字に巻き戻してしまう。そのため "2026-08-11" のような ISO 形式で入力すると
+		// ボタンを押した時点（＝フォーカスロスト時）でテキストが消えてしまっていた。
+		// ここで独自の StringConverter を設定し、INPUT_FORMATTERS で使っている書式を
+		// DatePicker自身にも認識させる。
+		expirationDatePicker.setConverter(new StringConverter<LocalDate>() {
+			@Override
+			public String toString(LocalDate date) {
+				// TODO(human): date が null の場合、DatePicker は空欄を表す null を渡してくる。
+				// null を FORMATTER.format() に渡すと例外になるので、null なら "" を返すこと。
+				// null でなければ FORMATTER（yyyy/MM/dd）で文字列化して返す。
+				if(date == null) {
+					return "";
+				} else {
+					return date.format(FORMATTER);
+				}
+			}
+
+			@Override
+			public LocalDate fromString(String text) {
+				return parseFlexibleDate(text);
+			}
+		});
 	}
 
 	@FXML
@@ -116,18 +142,14 @@ public class Controller {
 			return selectedDate;
 		}
 
-		String text =expirationDatePicker.getEditor().getText();
-		for (DateTimeFormatter formatter : INPUT_FORMATTERS) {
-			try {
-				LocalDate parsedDate = LocalDate.parse(text, formatter);
-				expirationDatePicker.setValue(parsedDate);
-				return parsedDate;
-			} catch (DateTimeParseException e) {
-				// 次のフォーマットを試す
-			}
+		String text = expirationDatePicker.getEditor().getText();
+		LocalDate parsedDate = parseFlexibleDate(text);
+		if (parsedDate != null) {
+			expirationDatePicker.setValue(parsedDate);
+			return parsedDate;
+		} else {
+			throw new IllegalArgumentException("期限の形式が正しくありません。yyyy-MM-dd または yyyy/MM/dd で入力してください");
 		}
-
-		throw new IllegalArgumentException("期限の形式が正しくありません。yyyy-MM-dd または yyyy/MM/dd で入力してください");
 	}
 
 	@FXML
@@ -142,5 +164,16 @@ public class Controller {
 			alert.setContentText("削除するTodoを選択してください");
 			alert.showAndWait();
 		}
+	}
+
+	private LocalDate parseFlexibleDate(String text) {
+		for (DateTimeFormatter formatter : INPUT_FORMATTERS) {
+			try {
+				return LocalDate.parse(text, formatter);
+			} catch (DateTimeParseException e) {
+
+			}
+		}
+		return null;
 	}
 }
