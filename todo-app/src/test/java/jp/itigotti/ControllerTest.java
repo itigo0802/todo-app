@@ -139,18 +139,8 @@ public class ControllerTest extends ApplicationTest {
         TodoItemModel target = controller.getTodoItems().get(0);
         TableView<TodoItemModel> todoListView = controller.getTodoListView();
 
-        // TODO(human): 準備した target を todoListView 上で選択状態にしたうえで、
-        // 「選択項目を削除」ボタンをクリックし、削除結果を検証すること。
-        //
-        // ヒント:
-        // - TableView の選択は todoListView.getSelectionModel().select(target) で行える。
-        //   ただしJavaFXのUI状態を変更する操作なので、interact(() -> ...) で
-        //   FXスレッド上で実行する（上の addTodoItem の呼び出し方が参考になる）。
-        // - 削除ボタンのクリックは他のテストと同様 clickOn("選択項目を削除") でよい。
-        // - 検証は最低限 controller.getTodoItems() から target が消えたことを確認する。
-        //   余力があれば dao.findById(...) などでDB側からも消えていることまで
-        //   確認すると、TodoListLogic.removeTodoItem がDAOとリストの両方を
-        //   更新していることを裏付けられる（TodoDAOのメソッド一覧を見てみてほしい）。
+        // TableView上でtargetを選択状態にしたうえで削除ボタンを押す。
+        // UI状態を変更する操作なのでinteract()でFXスレッド上で実行する。
         interact(() -> todoListView.getSelectionModel().select(target));
         clickOn("選択項目を削除");
 
