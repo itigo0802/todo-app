@@ -37,7 +37,7 @@ public class Controller {
 	private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 	private static final DateTimeFormatter[] INPUT_FORMATTERS = {
 			DateTimeFormatter.ISO_LOCAL_DATE,
-			DateTimeFormatter.ofPattern("yyyy/MM/dd"),
+			FORMATTER,
 	};
 	private static final Logger log = LoggerFactory.getLogger(Controller.class);
 
