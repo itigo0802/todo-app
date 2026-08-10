@@ -11,12 +11,8 @@ import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.testfx.api.FxRobot;
-import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.ApplicationTest;
-import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
 import java.nio.file.Path;
@@ -26,7 +22,6 @@ import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(ApplicationExtension.class)
 public class ControllerTest extends ApplicationTest {
 
     @TempDir
@@ -35,7 +30,7 @@ public class ControllerTest extends ApplicationTest {
     private Controller controller;
     private TodoDAO dao;
 
-    @Start
+    @Override
     public void start(Stage stage) throws Exception {
         Path testDbPath = tempDir.resolve("test.db");
         String testDbUrl = "jdbc:sqlite:" + testDbPath.toAbsolutePath();
@@ -55,7 +50,7 @@ public class ControllerTest extends ApplicationTest {
     }
 
     @BeforeEach
-    void setUp(FxRobot robot) {
+    void setUp() {
         controller.getTodoItems().clear();
 
         // ウィンドウ表示直後は、まだOSレベルの入力フォーカスを得ていないことがある。
@@ -65,7 +60,7 @@ public class ControllerTest extends ApplicationTest {
         // されてもキーボード入力は結局そのフィールドに届くため気づきにくい）。
         // 各テストの本題に入る前に一度ダミーでクリックし、OSフォーカスを
         // ウィンドウに移しておく。
-        robot.clickOn("#taskInput");
+        clickOn("#taskInput");
     }
 
     @AfterEach
@@ -76,15 +71,15 @@ public class ControllerTest extends ApplicationTest {
     }
 
     @Test
-    void handleAddAction_正常な入力でタスクが追加される(FxRobot robot) {
+    void handleAddAction_正常な入力でタスクが追加される() {
         String taskName = "テストタスク";
         LocalDate dueDate = LocalDate.now().plusDays(1);
 
-        robot.clickOn("#taskInput").write(taskName);
+        clickOn("#taskInput").write(taskName);
 
-        robot.clickOn("#expirationDatePicker").write(dueDate.toString());
+        clickOn("#expirationDatePicker").write(dueDate.toString());
 
-        robot.clickOn("追加");
+        clickOn("追加");
 
         assertEquals(1, controller.getTodoItems().size());
 
@@ -94,53 +89,53 @@ public class ControllerTest extends ApplicationTest {
     }
 
     @Test
-    void handleAddAction_追加後に入力フィールドがクリアされる(FxRobot robot) {
-        robot.clickOn("#taskInput").write("テストタスク");
-        robot.clickOn("#expirationDatePicker").write(LocalDate.now().toString());
+    void handleAddAction_追加後に入力フィールドがクリアされる() {
+        clickOn("#taskInput").write("テストタスク");
+        clickOn("#expirationDatePicker").write(LocalDate.now().toString());
 
-        robot.clickOn("追加");
+        clickOn("追加");
 
-        TextField taskInput = robot.lookup("#taskInput").queryAs(TextField.class);
+        TextField taskInput = lookup("#taskInput").queryAs(TextField.class);
         assertEquals("", taskInput.getText());
 
-        DatePicker datePicker = robot.lookup("#expirationDatePicker").queryAs(DatePicker.class);
+        DatePicker datePicker = lookup("#expirationDatePicker").queryAs(DatePicker.class);
         assertNull(datePicker.getValue());
     }
 
     @Test
-    void handleDeleteAction_未選択の場合エラーが表示され何も削除されない(FxRobot robot) throws TimeoutException {
+    void handleDeleteAction_未選択の場合エラーが表示され何も削除されない() throws TimeoutException {
         // UIを経由せず、ロジック層を直接呼び出してデータを準備する。
         // 削除機能のテストにとって「追加」操作は前提条件でしかないため、
         // ここをUI操作で行うとテストの意図がぼやけてしまう。
-        robot.interact(() -> controller.getLogic().addTodoItem("削除されないタスク", LocalDate.now()));
+        interact(() -> controller.getLogic().addTodoItem("削除されないタスク", LocalDate.now()));
 
         // 何も選択せずに削除ボタンを押す
-        robot.clickOn("選択項目を削除");
+        clickOn("選択項目を削除");
 
         // Alert.showAndWait() はFXスレッド上でネストしたイベントループに入って
-        // ダイアログを表示するため、robot.clickOn() が「FXイベントキューが空になった」
+        // ダイアログを表示するため、clickOn() が「FXイベントキューが空になった」
         // と判断するタイミングと、実際にダイアログが画面に現れるタイミングがずれることが
         // ある。ダイアログが見つかるまで明示的にポーリングして待つ。
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS,
-                () -> robot.lookup(".dialog-pane").tryQuery().isPresent());
+                () -> lookup(".dialog-pane").tryQuery().isPresent());
 
         // Alertはモーダルダイアログとして別ウィンドウで表示されるが、
         // FxRobotはアクティブな全ウィンドウを対象に検索できるので、
         // ".dialog-pane" というAlert共通のCSSクラスでルックアップできる。
-        DialogPane dialogPane = robot.lookup(".dialog-pane").queryAs(DialogPane.class);
+        DialogPane dialogPane = lookup(".dialog-pane").queryAs(DialogPane.class);
         assertEquals("削除するTodoを選択してください", dialogPane.getContentText());
 
         // Alert.showAndWait() はダイアログが閉じられるまでネストしたイベント
         // ループでブロックし続ける。閉じないまま次のテストに進むとFXスレッドが
         // 詰まるため、OKボタンをクリックして必ず閉じる。
-        robot.clickOn("OK");
+        clickOn("OK");
 
         assertEquals(1, controller.getTodoItems().size());
     }
 
     @Test
-    void handleDeleteAction_選択したTodoが削除される(FxRobot robot) {
-        robot.interact(() -> controller.getLogic().addTodoItem("削除されるタスク", LocalDate.now()));
+    void handleDeleteAction_選択したTodoが削除される() {
+        interact(() -> controller.getLogic().addTodoItem("削除されるタスク", LocalDate.now()));
         TodoItemModel target = controller.getTodoItems().get(0);
         TableView<TodoItemModel> todoListView = controller.getTodoListView();
 
@@ -149,15 +144,15 @@ public class ControllerTest extends ApplicationTest {
         //
         // ヒント:
         // - TableView の選択は todoListView.getSelectionModel().select(target) で行える。
-        //   ただしJavaFXのUI状態を変更する操作なので、robot.interact(() -> ...) で
+        //   ただしJavaFXのUI状態を変更する操作なので、interact(() -> ...) で
         //   FXスレッド上で実行する（上の addTodoItem の呼び出し方が参考になる）。
-        // - 削除ボタンのクリックは他のテストと同様 robot.clickOn("選択項目を削除") でよい。
+        // - 削除ボタンのクリックは他のテストと同様 clickOn("選択項目を削除") でよい。
         // - 検証は最低限 controller.getTodoItems() から target が消えたことを確認する。
         //   余力があれば dao.findById(...) などでDB側からも消えていることまで
         //   確認すると、TodoListLogic.removeTodoItem がDAOとリストの両方を
         //   更新していることを裏付けられる（TodoDAOのメソッド一覧を見てみてほしい）。
-        robot.interact(() -> todoListView.getSelectionModel().select(target));
-        robot.clickOn("選択項目を削除");
+        interact(() -> todoListView.getSelectionModel().select(target));
+        clickOn("選択項目を削除");
 
         assertFalse(controller.getTodoItems().contains(target));
     }
