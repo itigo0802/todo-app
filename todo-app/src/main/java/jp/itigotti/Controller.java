@@ -148,7 +148,11 @@ public class Controller {
 
 		LocalDate parsedDate = parseFlexibleDate(text);
 		if (parsedDate != null) {
-			expirationDatePicker.setValue(parsedDate);
+			// ここでexpirationDatePicker.setValue(parsedDate)は呼ばない。
+			// 成功パスではhandleAddAction()が直後にsetValue(null)で上書きするため
+			// 意味がなく、逆にこの後タスク名が空欄などで追加自体が失敗した場合には
+			// 「追加は失敗したのに期限欄の表示だけ書き換わって残る」という
+			// 意図しない副作用になってしまう。
 			return parsedDate;
 		} else {
 			throw new IllegalArgumentException("期限の形式が正しくありません。yyyy-MM-dd または yyyy/MM/dd で入力してください");
