@@ -142,6 +142,14 @@ public class Controller {
 		}
 
 		String text = expirationDatePicker.getEditor().getText();
+		if (text == null || text.isBlank()) {
+			// 何も入力されていない場合はnullを返し、logic.addTodoItem()側の
+			// 「期限が入力されていません」というメッセージに委ねる。
+			// ここで形式エラーとして扱うと、未入力なだけなのに
+			// 「形式が正しくありません」という誤ったメッセージになってしまう。
+			return null;
+		}
+
 		LocalDate parsedDate = parseFlexibleDate(text);
 		if (parsedDate != null) {
 			expirationDatePicker.setValue(parsedDate);
