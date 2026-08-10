@@ -100,9 +100,8 @@ public class Controller {
 		expirationDatePicker.setConverter(new StringConverter<LocalDate>() {
 			@Override
 			public String toString(LocalDate date) {
-				// TODO(human): date が null の場合、DatePicker は空欄を表す null を渡してくる。
-				// null を FORMATTER.format() に渡すと例外になるので、null なら "" を返すこと。
-				// null でなければ FORMATTER（yyyy/MM/dd）で文字列化して返す。
+				// date が null の場合、DatePicker は空欄を表す null を渡してくる。
+				// null を FORMATTER.format() に渡すと例外になるので、null なら "" を返す。
 				if(date == null) {
 					return "";
 				} else {
