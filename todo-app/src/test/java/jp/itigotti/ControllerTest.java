@@ -104,10 +104,9 @@ public class ControllerTest extends ApplicationTest {
 
     @Test
     void handleDeleteAction_未選択の場合エラーが表示され何も削除されない() throws TimeoutException {
-        // UIを経由せず、ロジック層を直接呼び出してデータを準備する。
-        // 削除機能のテストにとって「追加」操作は前提条件でしかないため、
-        // ここをUI操作で行うとテストの意図がぼやけてしまう。
-        interact(() -> controller.getLogic().addTodoItem("削除されないタスク", LocalDate.now()));
+        clickOn("#taskInput").write("削除されないタスク");
+        clickOn("#expirationDatePicker").write(LocalDate.now().toString());
+        clickOn("追加");
 
         // 何も選択せずに削除ボタンを押す
         clickOn("選択項目を削除");
@@ -135,7 +134,10 @@ public class ControllerTest extends ApplicationTest {
 
     @Test
     void handleDeleteAction_選択したTodoが削除される() {
-        interact(() -> controller.getLogic().addTodoItem("削除されるタスク", LocalDate.now()));
+        clickOn("#taskInput").write("削除されるタスク");
+        clickOn("#expirationDatePicker").write(LocalDate.now().toString());
+        clickOn("追加");
+
         TodoItemModel target = controller.getTodoItems().get(0);
         TableView<TodoItemModel> todoListView = controller.getTodoListView();
 

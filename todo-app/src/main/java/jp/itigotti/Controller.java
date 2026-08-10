@@ -49,10 +49,6 @@ public class Controller {
 		return logic.getTodoItems();
 	}
 
-	public TodoListLogic getLogic() {
-		return logic;
-	}
-
 	public TextField getTaskInput() {
 		return taskInput;
 	}
