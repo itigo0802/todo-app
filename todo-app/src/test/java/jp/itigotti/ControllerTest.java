@@ -51,7 +51,9 @@ public class ControllerTest extends ApplicationTest {
 
     @BeforeEach
     void setUp() {
-        controller.getTodoItems().clear();
+        // TableViewが直接バインドしているObservableListなので、他の箇所と同様に
+        // interact()でFXアプリケーションスレッド上から操作する。
+        interact(() -> controller.getTodoItems().clear());
 
         // ウィンドウ表示直後は、まだOSレベルの入力フォーカスを得ていないことがある。
         // その状態でボタンをロボットでクリックすると、ウィンドウマネージャに
