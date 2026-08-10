@@ -238,6 +238,3 @@ buildNumber.properties
 
 # database
 *.db
-
-# Claude Code
-.claude/*
