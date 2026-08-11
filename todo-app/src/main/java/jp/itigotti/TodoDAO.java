@@ -133,7 +133,6 @@ public class TodoDAO implements AutoCloseable {
     }
 
     public TodoItemModel create(TodoItemModel item) {
-
         if(item.getExpirationDate() == null) {
             throw new IllegalArgumentException("expiration_dateはnullにできません");
         }
@@ -152,14 +151,13 @@ public class TodoDAO implements AutoCloseable {
                 if (pStmt.executeUpdate() == 1) {
                     try (ResultSet rs = pStmt.getGeneratedKeys()) {
                         if (rs.next()) {
-                        item.setId(rs.getInt(1));
+                            item.setId(rs.getInt(1));
                         }
                     }
                     return item;
                 } else {
                     return null;
                 }
-            
             }
         } catch (SQLException e) {
             log.error("Todoの登録に失敗しました task={}, expirationDate={}, SQLState={}", StringUtil.truncateForLog(item.getTask()), item.getExpirationDate(), e.getSQLState(), e);
