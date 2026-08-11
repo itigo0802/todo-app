@@ -103,7 +103,7 @@ public class TodoDAO implements AutoCloseable {
                 }
             }
         } catch (SQLException e) {
-            log.error("DBの初期化に失敗しました dbUrl={}, SQLState={}", e.getSQLState(), e);
+            log.error("DBの初期化に失敗しました dbUrl={}, SQLState={}", DB_URL, e.getSQLState(), e);
             throw new RuntimeException("DBの初期化に失敗しました", e);
         }
     }
