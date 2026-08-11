@@ -49,14 +49,6 @@ public class Controller {
 		return logic.getTodoItems();
 	}
 
-	public TextField getTaskInput() {
-		return taskInput;
-	}
-
-	public DatePicker getExpirationDatePicker() {
-		return expirationDatePicker;
-	}
-
 	public TableView<TodoItemModel> getTodoListView() {
 		return todoListView;
 	}
@@ -119,7 +111,6 @@ public class Controller {
 			logic.addTodoItem(taskInput.getText(), expirationDate);
 			taskInput.clear();
 			expirationDatePicker.setValue(null);
-			expirationDatePicker.getEditor().clear();
 		} catch (IllegalArgumentException e) {
 			log.debug("入力バリデーションエラー message={}", e.getMessage());
 
@@ -146,17 +137,14 @@ public class Controller {
 			return null;
 		}
 
-		LocalDate parsedDate = parseFlexibleDate(text);
-		if (parsedDate != null) {
-			// ここでexpirationDatePicker.setValue(parsedDate)は呼ばない。
-			// 成功パスではhandleAddAction()が直後にsetValue(null)で上書きするため
-			// 意味がなく、逆にこの後タスク名が空欄などで追加自体が失敗した場合には
-			// 「追加は失敗したのに期限欄の表示だけ書き換わって残る」という
-			// 意図しない副作用になってしまう。
-			return parsedDate;
-		} else {
-			throw new IllegalArgumentException("期限の形式が正しくありません。yyyy-MM-dd または yyyy/MM/dd で入力してください");
-		}
+		// ここに到達した時点で、DatePickerはgetValue()がnullを返している。
+		// 「追加」ボタンのクリックでフォーカスが移る際、DatePicker自身の
+		// StringConverter#fromString()（= parseFlexibleDate()）が既に同じ
+		// テキストのパースを試みているはずで、それでもgetValue()がnullという
+		// ことは、そのパースが失敗したということ。parseFlexibleDate()は
+		// 副作用のない純粋関数なので、同じテキストをもう一度渡しても
+		// 結果は変わらない。よってここでは再パースせずに形式エラーとして扱う。
+		throw new IllegalArgumentException("期限の形式が正しくありません。yyyy-MM-dd または yyyy/MM/dd で入力してください");
 	}
 
 	@FXML
