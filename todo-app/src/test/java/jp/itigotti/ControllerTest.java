@@ -102,6 +102,25 @@ public class ControllerTest extends ApplicationTest {
 
         DatePicker datePicker = lookup("#expirationDatePicker").queryAs(DatePicker.class);
         assertNull(datePicker.getValue());
+        assertEquals("", datePicker.getEditor().getText());
+    }
+
+    @Test
+    void handleAddAction_期限の形式が不正な場合エラーが表示され追加されない() throws TimeoutException {
+        clickOn("#taskInput").write("テストタスク");
+        clickOn("#expirationDatePicker").write("not-a-date");
+
+        clickOn("追加");
+
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS,
+                () -> lookup(".dialog-pane").tryQuery().isPresent());
+
+        DialogPane dialogPane = lookup(".dialog-pane").queryAs(DialogPane.class);
+        assertEquals("期限の形式が正しくありません。yyyy-MM-dd または yyyy/MM/dd で入力してください",
+                dialogPane.getContentText());
+        clickOn("OK");
+
+        assertEquals(0, controller.getTodoItems().size());
     }
 
     @Test
