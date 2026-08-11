@@ -9,6 +9,7 @@ public class TodoItemModel {
     private final StringProperty task = new SimpleStringProperty();
     private final ObjectProperty<LocalDate> expirationDate = new SimpleObjectProperty<>();
     private final BooleanProperty completed = new SimpleBooleanProperty();
+    private boolean listenerAdded;
     
 
     public int getId() {
@@ -51,6 +52,9 @@ public class TodoItemModel {
     public BooleanProperty completedProperty() {
         return completed;
     }
+
+    boolean isListenerAdded() {return this.listenerAdded;}
+    void markListenerAdded() {this.listenerAdded = true;}
 
     @Override
     public boolean equals(Object obj) {
