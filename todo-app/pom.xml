@@ -244,6 +244,13 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.5.5</version>
+          <configuration>
+            <!-- MockitoがモックのバイトコードをByteBuddy経由で動的生成する際、
+                 ByteBuddyがまだJava 25のクラスファイルバージョンを正式に認識しておらず
+                 "Unknown Java version" で初期化に失敗する。ByteBuddyの実験的サポートを
+                 有効にして未知のバージョンでも動かす。 -->
+            <argLine>-Dnet.bytebuddy.experimental=true</argLine>
+          </configuration>
         </plugin>
   	</plugins>
   </build>
