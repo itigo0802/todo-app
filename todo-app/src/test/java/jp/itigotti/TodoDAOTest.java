@@ -149,6 +149,13 @@ public class TodoDAOTest {
     }
 
     @Test
+    void testDelete_存在しないidの場合false() {
+        boolean result = dao.delete(createTestItem(9999, "存在しないタスク", LocalDate.now(), false));
+
+        assertFalse(result, "存在しないidの削除はfalseを返すべき");
+    }
+
+    @Test
     void testCreate_expirationDateがnullの場合IllegalArgumentException() {
         TodoItemModel item = new TodoItemModel();
         item.setTask("テストタスク");
