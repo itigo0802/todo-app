@@ -36,6 +36,17 @@ Windows/macOS、またはディスプレイのある実行環境では `xvfb-run
 
 Maven の `app.type` プロパティ（`portable`/`installer`）は `pom.xml` 内の OS ごとのプロファイル（`linux-portable`、`windows-installer` など）を選択し、`jpackage.type`（`APP_IMAGE`/`DEB`/`MSI`/`PKG`）と `app.mode` を設定する。`app.mode` はアプリ起動時に `-Dtodo.app.mode` としてアプリ側に渡される。
 
+## Git ワークフロー
+
+このリポジトリでの変更は、GitHub issue 単位で次の流れで進める。
+
+1. **issue化**: 対応する issue がまだなければ先に作る（レビューで見つかった問題点なども、着手前にissueとして切り出す）。
+2. **ブランチ作成**: `master` から作業ブランチを切ってから着手する。`master` に直接コミットしない。ブランチ名は種類のプレフィックス + 内容の短い説明（例: `fix/initializeDB-log-dburl`、`feature/add-xxx`、`test/add-xxx`）。既存ブランチの命名（`fix/`、`feature/`、`patch/`、`test/` など）に合わせる。
+3. **作業・コミット**: 変更後は関連テストを実行して確認してからコミットする。
+4. **PR作成**: 作業ブランチを push し、`master` 向けに PR を作成する。PR本文に `Fixes #<issue番号>` を含め、マージ時に issue が自動クローズされるようにする。
+
+`gh` CLI（`gh issue create`、`gh pr create`）を使う。
+
 ## アーキテクチャ
 
 MVC パターン、単一パッケージ `jp.itigotti`、DI フレームワークを使わず手動で結線している：
