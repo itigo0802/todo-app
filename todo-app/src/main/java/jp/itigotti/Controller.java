@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
 
 public class Controller {
     @FXML
@@ -37,6 +38,27 @@ public class Controller {
     };
     private static final Logger log = LoggerFactory.getLogger(Controller.class);
 
+    // expirationDatePicker（自由入力欄）と expirationColumn（テーブルの編集セル）の
+    // 両方で「yyyy-MM-dd / yyyy/MM/dd を受け付け、表示はyyyy/MM/dd」という同じ変換規則を
+    // 使うため、StringConverterを1つのフィールドに集約して使い回す。
+    private final StringConverter<LocalDate> dateConverter = new StringConverter<>() {
+        @Override
+        public String toString(LocalDate date) {
+            // date が null の場合、DatePicker/TextFieldTableCell は空欄を表す null を渡してくる。
+            // null を FORMATTER.format() に渡すと例外になるので、null なら "" を返す。
+            if(date == null) {
+                return "";
+            } else {
+                return date.format(FORMATTER);
+            }
+        }
+
+        @Override
+        public LocalDate fromString(String text) {
+            return parseFlexibleDate(text);
+        }
+    };
+
     public Controller(TodoDAO dao) {
         this.logic = new TodoListLogic(dao);
     }
@@ -57,19 +79,12 @@ public class Controller {
         todoListView.setEditable(true);
 
         taskColumn.setCellValueFactory(cellData -> cellData.getValue().taskProperty());
+        taskColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        taskColumn.setEditable(true);
 
         expirationColumn.setCellValueFactory(cellData -> cellData.getValue().expirationDateProperty());
-        expirationColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(LocalDate item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(FORMATTER.format(item));
-                }
-            }
-        });
+        expirationColumn.setCellFactory(TextFieldTableCell.forTableColumn(dateConverter));
+        expirationColumn.setEditable(true);
 
         isCompletedColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
         isCompletedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(isCompletedColumn));
@@ -79,24 +94,67 @@ public class Controller {
         // （例: M/d/yy）でエディタの文字列をパースしようとし、失敗すると入力内容を
         // 空文字に巻き戻してしまう。そのため "2026-08-11" のような ISO 形式で入力すると
         // ボタンを押した時点（＝フォーカスロスト時）でテキストが消えてしまっていた。
-        // ここで独自の StringConverter を設定し、INPUT_FORMATTERS で使っている書式を
+        // ここで dateConverter を設定し、INPUT_FORMATTERS で使っている書式を
         // DatePicker自身にも認識させる。
-        expirationDatePicker.setConverter(new StringConverter<LocalDate>() {
-            @Override
-            public String toString(LocalDate date) {
-                // date が null の場合、DatePicker は空欄を表す null を渡してくる。
-                // null を FORMATTER.format() に渡すと例外になるので、null なら "" を返す。
-                if(date == null) {
-                    return "";
-                } else {
-                    return date.format(FORMATTER);
-                }
+        expirationDatePicker.setConverter(dateConverter);
+
+        // TODO(human): taskColumn・expirationColumnのセルを編集し確定した（Enterやフォーカス
+        // ロストで編集を終えた）ときに、入力値を検証してからTodoItemModelへ反映する処理を
+        // 実装する。モデルのプロパティ（taskProperty/expirationDateProperty）を更新すれば、
+        // 上のTodoListLogic.setupItemListener()が変更を検知して自動的にDBへ保存してくれる
+        // （completedPropertyの仕組みと同じ）ので、ここではモデルを正しく更新することだけを
+        // 考えればよい。
+        //
+        // taskColumn.setOnEditCommit(event -> { ... });
+        // expirationColumn.setOnEditCommit(event -> { ... });
+        //
+        // ヒント:
+        // - event.getRowValue() で編集対象のTodoItemModel、event.getNewValue() で
+        //   編集後の値（Stringまたはparseされた LocalDate）が取れる。
+        // - taskColumn側: 空文字・空白のみの入力をどう扱うか（handleAddActionのバリデーション
+        //   と同様、許可しない方が自然）。
+        // - expirationColumn側: dateConverter#fromString()（=parseFlexibleDate()）は
+        //   パースできない文字列に対してnullを返す。event.getNewValue()がnullになりうる
+        //   ことに注意。
+        // - 不正な入力を弾く場合、item.setTask()/setExpirationDate()を呼ばなければ
+        //   プロパティは変化せず、DBへも保存されない。ユーザーに知らせたい場合はAlertを
+        //   出す方法もある（handleAddActionのエラーAlertが参考になる）。
+        taskColumn.setOnEditCommit(event -> {
+            TodoItemModel editItem = event.getRowValue();
+            String task = event.getNewValue();
+
+            if(task.isBlank()) {
+                log.debug("入力バリデーションエラー タスクが入力されていません");
+
+                var alert = new Alert(AlertType.ERROR);
+                alert.setTitle("入力エラー");
+                alert.setHeaderText(null);
+                alert.setContentText("タスクが入力されていません");
+                alert.showAndWait();
+                todoListView.refresh();
+                return;
             }
 
-            @Override
-            public LocalDate fromString(String text) {
-                return parseFlexibleDate(text);
+            editItem.setTask(task);
+        });
+
+        expirationColumn.setOnEditCommit(event -> {
+            TodoItemModel editItem = event.getRowValue();
+            LocalDate expirationDate = event.getNewValue();
+
+            if (expirationDate == null) {
+                log.debug("入力バリデーションエラー 期限の形式が正しくない");
+
+                var alert = new Alert(AlertType.ERROR);
+                alert.setTitle("入力エラー");
+                alert.setHeaderText(null);
+                alert.setContentText("期限の形式が正しくありません。yyyy-MM-dd または yyyy/MM/dd で入力してください");
+                alert.showAndWait();
+                todoListView.refresh();
+                return;
             }
+
+            editItem.setExpirationDate(expirationDate);
         });
     }
 
@@ -152,16 +210,7 @@ public class Controller {
             confirm.setHeaderText(null);
             confirm.setContentText("「" + selected.getTask() + "」を削除しますか？");
 
-            // TODO(human): confirm.showAndWait() を呼び、ユーザーがOKボタンを押した場合だけ
-            // logic.removeTodoItem(selected) を呼ぶように実装する。
-            //
-            // ヒント:
-            // - Alert#showAndWait() は Optional<ButtonType> を返す。デフォルトの
-            //   AlertType.CONFIRMATION には ButtonType.OK と ButtonType.CANCEL が
-            //   自動で用意される（ダイアログを×で閉じた場合はOptional.empty()になる）。
-            // - Optional の中身を確認する書き方は複数ある。例えば
-            //   result.isPresent() && result.get() == ButtonType.OK のような素朴な判定でも、
-            //   result.filter(bt -> bt == ButtonType.OK).isPresent() のような書き方でもよい。
+            // ×で閉じた場合はOptional.empty()になるため、OKが明示的に選ばれた場合のみ削除する。
             Optional<ButtonType> result = confirm.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 logic.removeTodoItem(selected);

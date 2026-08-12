@@ -7,6 +7,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
@@ -18,12 +19,17 @@ import org.testfx.util.WaitForAsyncUtils;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ControllerTest extends ApplicationTest {
+
+    // expirationColumnのセルは、Controller側のdateConverterと同じ"yyyy/MM/dd"書式で表示される。
+    // 編集開始のためにセルをダブルクリックする際、表示中のテキストでルックアップする必要がある。
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
     @TempDir
     private Path tempDir;
@@ -196,5 +202,89 @@ public class ControllerTest extends ApplicationTest {
         clickOn(ButtonType.CANCEL.getText());
 
         assertTrue(controller.getTodoItems().contains(target));
+    }
+
+    @Test
+    void taskColumnEdit_正常な値に変更するとDBに反映される() {
+        String originalTask = "編集前タスク";
+        clickOn("#taskInput").write(originalTask);
+        clickOn("#expirationDatePicker").write(LocalDate.now().toString());
+        clickOn("追加");
+
+        TodoItemModel target = controller.getTodoItems().get(0);
+
+        // セルのダブルクリックで編集モードに入る。編集開始時、TextFieldTableCellは
+        // 既存のテキストを選択済みの状態にするため、そのままwrite()すれば上書きできる。
+        doubleClickOn(originalTask);
+        write("編集後タスク");
+        push(KeyCode.ENTER);
+
+        assertEquals("編集後タスク", target.getTask());
+        assertEquals("編集後タスク", dao.findAll().get(0).getTask());
+    }
+
+    @Test
+    void taskColumnEdit_空文字にするとエラーが表示され変更されない() throws TimeoutException {
+        String originalTask = "編集前タスク";
+        clickOn("#taskInput").write(originalTask);
+        clickOn("#expirationDatePicker").write(LocalDate.now().toString());
+        clickOn("追加");
+
+        TodoItemModel target = controller.getTodoItems().get(0);
+
+        doubleClickOn(originalTask);
+        // 編集開始時にテキストは全選択された状態になっているので、BackSpace一発で空にできる。
+        push(KeyCode.BACK_SPACE);
+        push(KeyCode.ENTER);
+
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS,
+                () -> lookup(".dialog-pane").tryQuery().isPresent());
+        DialogPane dialogPane = lookup(".dialog-pane").queryAs(DialogPane.class);
+        assertEquals("タスクが入力されていません", dialogPane.getContentText());
+        clickOn(ButtonType.OK.getText());
+
+        assertEquals(originalTask, target.getTask());
+    }
+
+    @Test
+    void expirationColumnEdit_正常な値に変更するとDBに反映される() {
+        LocalDate originalDate = LocalDate.now();
+        LocalDate newDate = LocalDate.now().plusDays(3);
+        clickOn("#taskInput").write("期限編集テスト");
+        clickOn("#expirationDatePicker").write(originalDate.toString());
+        clickOn("追加");
+
+        TodoItemModel target = controller.getTodoItems().get(0);
+
+        doubleClickOn(DATE_FORMATTER.format(originalDate));
+        write(newDate.toString());
+        push(KeyCode.ENTER);
+
+        assertEquals(newDate, target.getExpirationDate());
+        assertEquals(newDate, dao.findAll().get(0).getExpirationDate());
+    }
+
+    @Test
+    void expirationColumnEdit_不正な形式にするとエラーが表示され変更されない() throws TimeoutException {
+        LocalDate originalDate = LocalDate.now();
+        clickOn("#taskInput").write("期限編集テスト");
+        clickOn("#expirationDatePicker").write(originalDate.toString());
+        clickOn("追加");
+
+        TodoItemModel target = controller.getTodoItems().get(0);
+
+        doubleClickOn(DATE_FORMATTER.format(originalDate));
+        push(KeyCode.BACK_SPACE);
+        write("not-a-date");
+        push(KeyCode.ENTER);
+
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS,
+                () -> lookup(".dialog-pane").tryQuery().isPresent());
+        DialogPane dialogPane = lookup(".dialog-pane").queryAs(DialogPane.class);
+        assertEquals("期限の形式が正しくありません。yyyy-MM-dd または yyyy/MM/dd で入力してください",
+                dialogPane.getContentText());
+        clickOn(ButtonType.OK.getText());
+
+        assertEquals(originalDate, target.getExpirationDate());
     }
 }
