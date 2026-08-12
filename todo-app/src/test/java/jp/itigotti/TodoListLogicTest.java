@@ -109,38 +109,9 @@ public class TodoListLogicTest {
         });
     }
 
-    // TODO(human): removeTodoItem()で、dao.delete()がfalseを返した場合に
-    // todoItems（ObservableList）からアイテムが削除されないことを検証するテストを書く。
-    //
-    // TodoListLogic.removeTodoItem()の実装（再掲）:
-    //   public void removeTodoItem(TodoItemModel item) {
-    //       if(dao.delete(item)) {
-    //           todoItems.remove(item);
-    //       } else {
-    //           log.warn(...);
-    //       }
-    //   }
-    //
-    // dao.delete()にfalseを返させる方法として、大きく2通り考えられる：
-    //
-    //   (A) 実DAO + 存在しないidを使う方法（このファイルの他のテストと同じ、実DBに対する
-    //       real object を使うスタイル）。TodoDAO.delete()はSQLのDELETEが0件しか
-    //       更新できなかった場合にfalseを返すので、DBに存在しないidを持つTodoItemModelを
-    //       logic.getTodoItems()に直接addしてからremoveTodoItem()を呼べば、
-    //       新しい依存を増やさずに再現できる。
-    //
-    //   (B) Mockito でTodoDAOをモック化する方法。
-    //       pom.xmlには mockito-junit-jupiter が依存として入っているが、実はこのプロジェクトの
-    //       テストではまだ一度も使われていない。Mockito.mock(TodoDAO.class) で偽のTodoDAOを
-    //       作り、when(mockDao.delete(any())).thenReturn(false) のように「呼ばれたらfalseを返す」
-    //       ことを宣言してTodoListLogicに渡す、というやり方。実際のDB操作を一切介さずに
-    //       「dao.delete()がfalseを返したケース」をピンポイントで再現できる。
-    //
-    // どちらでも要件（削除に失敗したらリストから消えないこと）は検証できる。(A)は今の
-    // ファイルの書き方に馴染むが、(B)は「DBの都合とは無関係に、ロジックの分岐だけを
-    // 確実にテストする」という単体テスト的なアプローチで、今後DAOの失敗理由が増えても
-    // テストコード側は影響を受けにくい。どちらを選んでも良いので、選んだ理由も含めて
-    // 実装してみてください。
+    // dao.delete()がfalseを返すケースをMockitoで再現し、todoItemsから削除されないことを検証する。
+    // 実DB経由（存在しないidを使う方法）でも再現できるが、DBの都合と無関係にロジックの分岐だけを
+    // 確実にテストできるモック方式を選んだ。
     @Test
     void removeTodoItem_DB削除に失敗した場合リストから削除されない() {
         TodoDAO mock = Mockito.mock(TodoDAO.class);
