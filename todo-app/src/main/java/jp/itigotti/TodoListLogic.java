@@ -68,14 +68,18 @@ public class TodoListLogic {
         if (item.isListenerAdded()) {
             return;
         }
-        item.completedProperty().addListener((obs, oldVal, newVal) -> {
-            try {
-                dao.update(item);
-            } catch (RuntimeException e) {
-                log.error("完了状態の更新に失敗しました id={}", item.getId(), e);
-            }
-        });
+        item.completedProperty().addListener((obs, oldVal, newVal) -> persist(item, "完了状態"));
+        item.taskProperty().addListener((obs, oldVal, newVal) -> persist(item, "タスク名"));
+        item.expirationDateProperty().addListener((obs, oldVal, newVal) -> persist(item, "期限日"));
         item.markListenerAdded();
+    }
+
+    private void persist(TodoItemModel item, String fieldLabel) {
+        try {
+            dao.update(item);
+        } catch (RuntimeException e) {
+            log.error("{}の更新に失敗しました id={}", fieldLabel, item.getId(), e);
+        }
     }
 }
 
