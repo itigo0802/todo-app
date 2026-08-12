@@ -3,19 +3,15 @@ package jp.itigotti;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
 import javafx.collections.ObservableList;
+import javafx.scene.control.*;
 import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.CheckBoxTableCell;
 
@@ -151,7 +147,25 @@ public class Controller {
     private void handleDeleteAction() {
         TodoItemModel selected = todoListView.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            logic.removeTodoItem(selected);
+            var confirm = new Alert(AlertType.CONFIRMATION);
+            confirm.setTitle("削除の確認");
+            confirm.setHeaderText(null);
+            confirm.setContentText("「" + selected.getTask() + "」を削除しますか？");
+
+            // TODO(human): confirm.showAndWait() を呼び、ユーザーがOKボタンを押した場合だけ
+            // logic.removeTodoItem(selected) を呼ぶように実装する。
+            //
+            // ヒント:
+            // - Alert#showAndWait() は Optional<ButtonType> を返す。デフォルトの
+            //   AlertType.CONFIRMATION には ButtonType.OK と ButtonType.CANCEL が
+            //   自動で用意される（ダイアログを×で閉じた場合はOptional.empty()になる）。
+            // - Optional の中身を確認する書き方は複数ある。例えば
+            //   result.isPresent() && result.get() == ButtonType.OK のような素朴な判定でも、
+            //   result.filter(bt -> bt == ButtonType.OK).isPresent() のような書き方でもよい。
+            Optional<ButtonType> result = confirm.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                logic.removeTodoItem(selected);
+            }
         } else {
             var alert = new Alert(AlertType.ERROR);
             alert.setTitle("削除エラー");

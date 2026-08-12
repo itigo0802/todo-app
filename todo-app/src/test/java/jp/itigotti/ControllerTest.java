@@ -2,6 +2,7 @@ package jp.itigotti;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.TableView;
@@ -154,7 +155,7 @@ public class ControllerTest extends ApplicationTest {
     }
 
     @Test
-    void handleDeleteAction_選択したTodoが削除される() {
+    void handleDeleteAction_確認ダイアログでOKを選ぶと削除される() throws TimeoutException {
         clickOn("#taskInput").write("削除されるタスク");
         clickOn("#expirationDatePicker").write(LocalDate.now().toString());
         clickOn("追加");
@@ -167,6 +168,33 @@ public class ControllerTest extends ApplicationTest {
         interact(() -> todoListView.getSelectionModel().select(target));
         clickOn("選択項目を削除");
 
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS,
+                () -> lookup(".dialog-pane").tryQuery().isPresent());
+        // ButtonTypeの表示ラベルは実行環境のロケールに応じてJavaFXの標準リソース
+        // バンドルが決める（例: ja_JPなら「キャンセル」、Cやen_USなら"Cancel"）。CI環境と
+        // この開発機とでロケールが異なりうるので、決め打ち文字列ではなく
+        // ButtonType#getText()（実行時のロケールで解決された文字列）でルックアップする。
+        clickOn(ButtonType.OK.getText());
+
         assertFalse(controller.getTodoItems().contains(target));
+    }
+
+    @Test
+    void handleDeleteAction_確認ダイアログでキャンセルすると削除されない() throws TimeoutException {
+        clickOn("#taskInput").write("削除されないタスク");
+        clickOn("#expirationDatePicker").write(LocalDate.now().toString());
+        clickOn("追加");
+
+        TodoItemModel target = controller.getTodoItems().get(0);
+        TableView<TodoItemModel> todoListView = controller.getTodoListView();
+
+        interact(() -> todoListView.getSelectionModel().select(target));
+        clickOn("選択項目を削除");
+
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS,
+                () -> lookup(".dialog-pane").tryQuery().isPresent());
+        clickOn(ButtonType.CANCEL.getText());
+
+        assertTrue(controller.getTodoItems().contains(target));
     }
 }
